@@ -1,0 +1,29 @@
+{
+    "version": "0.1.0",
+    "compilerOptions": {
+        "target": "es5",
+        "outDir": "dist",
+        "sourceMap": false,
+        "declaration": true,
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "removeComments": false,
+        "strictNullChecks": true,
+        "noImplicitReturns": true,
+        "noImplicitUseStrict": true,
+        "noUnusedLocals": true,
+        
+        "noImplicitAny": true,
+        "moduleResolution": "node",
+        "downlevelIteration": true,
+        "lib": [
+            "es6",
+            "dom",
+             "dom.iterable",
+             "scripthost"
+        ]
+    },
+    "include": [
+        "src/**/*.ts", "src/mxClient"
+    ]
+}
