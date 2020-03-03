@@ -1,5 +1,14 @@
 import { mxClient } from '../mxClient';
+import mxCellState from "../view/mxCellState";
+
 import { mxConstants } from './mxConstants';
+import { mxResources } from './mxResources';
+import mxPoint from "./mxPoint";
+import { mxEvent } from "./mxEvent";
+import mxRectangle from "./mxRectangle";
+import mxXmlRequest, { ERequestMethod, TRequestOnloadCallback, TRequestOnErrorCallback } from "./mxXmlRequest";
+import mxStylesheet from '../view/mxStylesheet';
+import mxCell from '../model/mxCell';
 
 declare global {
   var _mxJavaScriptExpression: any;
@@ -1350,7 +1359,7 @@ export const mxUtils = {
    * url - URL to get the data from.
    */
   load: function(url: string) {
-    var req = new mxXmlRequest(url, null, 'GET', false);
+    var req = new mxXmlRequest(url, null, ERequestMethod.GET, false);
     req.send();
 
     return req;
@@ -1396,8 +1405,8 @@ export const mxUtils = {
    * timeout - Optional timeout in ms before calling ontimeout.
    * ontimeout - Optional function to execute on timeout.
    */
-  get: function(url: string, onload, onerror, binary, timeout: number, ontimeout) {
-    var req = new mxXmlRequest(url, null, 'GET');
+  get: function (url: string, onload: TRequestOnloadCallback, onerror: TRequestOnErrorCallback, binary: boolean, timeout: number, ontimeout: XMLHttpRequestEventTarget['ontimeout']) {
+    var req = new mxXmlRequest(url, null, ERequestMethod.GET);
 
     if (binary != null) {
       req.setBinary(binary);
@@ -1421,9 +1430,9 @@ export const mxUtils = {
    * onload - Callback with array of <mxXmlRequests>.
    * onerror - Optional function to execute on error.
    */
-  getAll: function(urls: string[], onload, onerror) {
+  getAll: function(urls: string[], onload: TRequestOnloadCallback, onerror: TRequestOnErrorCallback) {
     var remain = urls.length;
-    var result = [];
+    var result: mxXmlRequest[] = [];
     var errors = 0;
     var err = function() {
       if (errors == 0 && onerror != null) {
@@ -1487,7 +1496,7 @@ export const mxUtils = {
    * onload - Optional function to execute for a successful response.
    * onerror - Optional function to execute on error.
    */
-  post: function(url: string, params, onload, onerror) {
+  post: function(url: string, params: string | null, onload: TRequestOnloadCallback, onerror: TRequestOnErrorCallback) {
     return new mxXmlRequest(url, params).send(onload, onerror);
   },
 
@@ -1506,7 +1515,7 @@ export const mxUtils = {
    * doc - Document to create the form in.
    * target - Target to send the form result to.
    */
-  submit: function(url: string, params, doc, target) {
+  submit: function(url: string, params: string | null, doc?: Document, target?: string) {
     return new mxXmlRequest(url, params).simulate(doc, target);
   },
 
@@ -1523,9 +1532,10 @@ export const mxUtils = {
    * doc - The document to load the URL into.
    * onload - Function to execute when the URL has been loaded.
    */
-  loadInto: function(url: string, doc, onload) {
+  loadInto: function(url: string, doc: Document, onload: ()=> void) {
     if (mxClient.IS_IE) {
       doc.onreadystatechange = function() {
+        // @ts-ignore
         if (doc.readyState == 4) {
           onload();
         }
@@ -1534,6 +1544,7 @@ export const mxUtils = {
       doc.addEventListener('load', onload, false);
     }
 
+    // @ts-ignore
     doc.load(url);
   },
 
@@ -1627,7 +1638,7 @@ export const mxUtils = {
    * in other words, one where only atomic (strings, numbers) values are
    * cloned. Default is false.
    */
-  clone: function(obj?: any, transients: any[], shallow: boolean) {
+  clone: function(obj: any, transients: string[], shallow: boolean) {
     shallow = shallow != null ? shallow : false;
     var clone = null;
 
@@ -1661,7 +1672,7 @@ export const mxUtils = {
    * a - Array of <mxPoints> to be compared.
    * b - Array of <mxPoints> to be compared.
    */
-  equalPoints: function(a, b) {
+  equalPoints: function (a: mxPoint[], b: mxPoint[]) {
     if (
       (a == null && b != null) ||
       (a != null && b == null) ||
@@ -1690,7 +1701,7 @@ export const mxUtils = {
    * a - First object to be compared.
    * b - Second object to be compared.
    */
-  equalEntries: function(a: any, b: any) {
+  equalEntries: function (a: object[], b: object[]) {
     if (
       (a == null && b != null) ||
       (a != null && b == null) ||
@@ -1951,7 +1962,7 @@ export const mxUtils = {
    * cx - Optional <mxPoint> that represents the rotation center. If no
    * rotation center is given then the center of rect is used.
    */
-  getBoundingBox: function(rect, rotation, cx) {
+  getBoundingBox: function (rect: mxRectangle, rotation: number, cx: mxPoint) {
     var result = null;
 
     if (rect != null && rotation != null && rotation != 0) {
@@ -1988,7 +1999,7 @@ export const mxUtils = {
    *
    * Rotates the given point by the given cos and sin.
    */
-  getRotatedPoint: function(pt, cos, sin, c) {
+  getRotatedPoint: function (pt: mxPoint, cos: number, sin: number, c: mxPoint) {
     c = c != null ? c : new mxPoint();
     var x = pt.x - c.x;
     var y = pt.y - c.y;
@@ -2012,7 +2023,7 @@ export const mxUtils = {
    * source - Boolean that specifies if the terminal is the source terminal.
    * defaultValue - Default value to be returned.
    */
-  getPortConstraints: function(terminal, edge, source, defaultValue) {
+  getPortConstraints: function (terminal: mxCellState, edge: mxCellState, source: boolean, defaultValue: any) {
     var value = mxUtils.getValue(
       terminal.style,
       mxConstants.STYLE_PORT_CONSTRAINT,
@@ -2136,7 +2147,7 @@ export const mxUtils = {
    * Reverse the port constraint bitmask. For example, north | east
    * becomes south | west
    */
-  reversePortConstraints: function(constraint) {
+  reversePortConstraints: function(constraint: number) {
     var result = 0;
 
     result = (constraint & mxConstants.DIRECTION_MASK_WEST) << 3;
@@ -2153,15 +2164,15 @@ export const mxUtils = {
    * Finds the index of the nearest segment on the given cell state for
    * the specified coordinate pair.
    */
-  findNearestSegment: function(state, x, y) {
+  findNearestSegment: function (state: mxCellState, x: number, y: number) {
     var index = -1;
 
-    if (state.absolutePoints.length > 0) {
-      var last = state.absolutePoints[0];
+    if (state.absolutePoints && state.absolutePoints.length > 0) {
+      var last = state.absolutePoints[0]!;
       var min = null;
 
       for (var i = 1; i < state.absolutePoints.length; i++) {
-        var current = state.absolutePoints[i];
+        var current = state.absolutePoints[i]!;
         var dist = mxUtils.ptSegDistSq(
           last.x,
           last.y,
@@ -2189,7 +2200,7 @@ export const mxUtils = {
    * Adds the given margins to the given rectangle and rotates and flips the
    * rectangle according to the respective styles in style.
    */
-  getDirectedBounds: function(rect, m, style, flipH, flipV) {
+  getDirectedBounds: function (rect: mxRectangle, m: mxRectangle, style: mxStylesheet, flipH: string, flipV: string) {
     var d = mxUtils.getValue(
       style,
       mxConstants.STYLE_DIRECTION,
@@ -2266,7 +2277,7 @@ export const mxUtils = {
    * Returns the intersection between the polygon defined by the array of
    * points and the line between center and point.
    */
-  getPerimeterPoint: function(pts, center, point) {
+  getPerimeterPoint: function(pts: mxPoint[], center: mxPoint, point: mxPoint) {
     var min = null;
 
     for (var i = 0; i < pts.length - 1; i++) {
@@ -2306,7 +2317,7 @@ export const mxUtils = {
    * p1 - <mxPoint> that represents the first point of the segment.
    * p2 - <mxPoint> that represents the second point of the segment.
    */
-  rectangleIntersectsSegment: function(bounds, p1, p2) {
+  rectangleIntersectsSegment: function (bounds: mxRectangle, p1: mxPoint, p2: mxPoint) {
     var top = bounds.y;
     var left = bounds.x;
     var bottom = top + bounds.height;
@@ -2381,7 +2392,7 @@ export const mxUtils = {
    * x - X-coordinate of the point.
    * y - Y-coordinate of the point.
    */
-  contains: function(bounds, x, y) {
+  contains: function (bounds: mxRectangle, x: number, y: number) {
     return (
       bounds.x <= x &&
       bounds.x + bounds.width >= x &&
@@ -2400,7 +2411,7 @@ export const mxUtils = {
    * a - <mxRectangle> to be checked for intersection.
    * b - <mxRectangle> to be checked for intersection.
    */
-  intersects: function(a, b) {
+  intersects: function (a: mxRectangle, b: mxRectangle) {
     var tw = a.width;
     var th = a.height;
     var rw = b.width;
@@ -2438,7 +2449,7 @@ export const mxUtils = {
    * a - <mxRectangle> to be checked for intersection.
    * b - <mxRectangle> to be checked for intersection.
    */
-  intersectsHotspot: function(state, x, y, hotspot, min, max) {
+  intersectsHotspot: function(state: mxCellState, x: number, y: number, hotspot: number, min: number, max: number) {
     hotspot = hotspot != null ? hotspot : 1;
     min = min != null ? min : 0;
     max = max != null ? max : 0;
@@ -2479,8 +2490,8 @@ export const mxUtils = {
       if (alpha != 0) {
         var cos = Math.cos(-alpha);
         var sin = Math.sin(-alpha);
-        var cx = new mxPoint(state.getCenterX(), state.getCenterY());
-        var pt = mxUtils.getRotatedPoint(new mxPoint(x, y), cos, sin, cx);
+        var cp = new mxPoint(state.getCenterX(), state.getCenterY());
+        var pt = mxUtils.getRotatedPoint(new mxPoint(x, y), cos, sin, cp);
         x = pt.x;
         y = pt.y;
       }
@@ -2504,7 +2515,7 @@ export const mxUtils = {
    * scollOffset - Optional boolean to add the scroll offset of the document.
    * Default is false.
    */
-  getOffset: function(container, scrollOffset) {
+  getOffset: function(container: Element, scrollOffset: boolean = false) {
     var offsetLeft = 0;
     var offsetTop = 0;
 
@@ -2546,11 +2557,11 @@ export const mxUtils = {
    * Returns the scroll origin of the given document or the current document
    * if no document is given.
    */
-  getDocumentScrollOrigin: function(doc) {
+  getDocumentScrollOrigin: function(doc: Document) {
     if (mxClient.IS_QUIRKS) {
       return new mxPoint(doc.body.scrollLeft, doc.body.scrollTop);
     } else {
-      var wnd = doc.defaultView || doc.parentWindow;
+      var wnd = doc.defaultView;
 
       var x =
         wnd != null && window.pageXOffset !== undefined
@@ -2586,11 +2597,11 @@ export const mxUtils = {
    * includeDocument - Whether the scroll origin of the document should be
    * included. Default is true.
    */
-  getScrollOrigin: function(node, includeAncestors, includeDocument) {
+  getScrollOrigin: function(node: Element, includeAncestors = false, includeDocument = true) {
     includeAncestors = includeAncestors != null ? includeAncestors : false;
     includeDocument = includeDocument != null ? includeDocument : true;
 
-    var doc = node != null ? node.ownerDocument : document;
+    var doc = (node != null ? node.ownerDocument : document) as Document;
     var b = doc.body;
     var d = doc.documentElement;
     var result = new mxPoint();
@@ -2608,6 +2619,7 @@ export const mxUtils = {
         fixed = fixed || style.position == 'fixed';
       }
 
+      // @ts-ignore
       node = includeAncestors ? node.parentNode : null;
     }
 
@@ -2638,7 +2650,7 @@ export const mxUtils = {
    * x - X-coordinate of the point to be converted.
    * y - Y-coordinate of the point to be converted.
    */
-  convertPoint: function(container, x, y) {
+  convertPoint: function(container: Element, x: number, y: number) {
     var origin = mxUtils.getScrollOrigin(container, false);
     var offset = mxUtils.getOffset(container);
 
@@ -2718,7 +2730,7 @@ export const mxUtils = {
    *
    * n - String representing the possibly numeric value.
    */
-  isNumeric: function(n) {
+  isNumeric: function(n: any) {
     return (
       !isNaN(parseFloat(n)) &&
       isFinite(n) &&
@@ -2735,7 +2747,7 @@ export const mxUtils = {
    *
    * n - String representing the possibly numeric value.
    */
-  isInteger: function(n) {
+  isInteger: function(n: any) {
     return String(parseInt(n)) === String(n);
   },
 
@@ -2746,7 +2758,7 @@ export const mxUtils = {
    * of the built-in operation as the built-in operation does not properly
    * handle negative numbers.
    */
-  mod: function(n, m) {
+  mod: function(n: number, m: number) {
     return ((n % m) + m) % m;
   },
 
@@ -2766,7 +2778,7 @@ export const mxUtils = {
    * x3 - X-coordinate of the second line's endpoint.
    * y3 - Y-coordinate of the second line's endpoint.
    */
-  intersection: function(x0, y0, x1, y1, x2, y2, x3, y3) {
+  intersection: function(x0: number, y0: number, x1: number, y1: number, x2: number, y2: number, x3: number, y3: number) {
     var denom = (y3 - y2) * (x1 - x0) - (x3 - x2) * (y1 - y0);
     var nume_a = (x3 - x2) * (y0 - y2) - (y3 - y2) * (x0 - x2);
     var nume_b = (x1 - x0) * (y0 - y2) - (y1 - y0) * (x0 - x2);
@@ -2802,7 +2814,7 @@ export const mxUtils = {
    * px - X-coordinate of the point.
    * py - Y-coordinate of the point.
    */
-  ptSegDistSq: function(x1, y1, x2, y2, px, py) {
+  ptSegDistSq: function(x1: number, y1: number, x2: number, y2: number, px: number, py: number) {
     x2 -= x1;
     y2 -= y1;
 
@@ -2851,7 +2863,7 @@ export const mxUtils = {
    * px - X-coordinate of the point.
    * py - Y-coordinate of the point.
    */
-  ptLineDist: function(x1, y1, x2, y2, px, py) {
+  ptLineDist: function(x1: number, y1: number, x2: number, y2: number, px: number, py: number) {
     return (
       Math.abs((y2 - y1) * px - (x2 - x1) * py + x2 * y1 - y2 * x1) /
       Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1))
@@ -2873,7 +2885,7 @@ export const mxUtils = {
    * px - X-coordinate of the point.
    * py - Y-coordinate of the point.
    */
-  relativeCcw: function(x1, y1, x2, y2, px, py) {
+  relativeCcw: function(x1: number, y1: number, x2: number, y2: number, px: number, py: number) {
     x2 -= x1;
     y2 -= y1;
     px -= x1;
@@ -2903,7 +2915,7 @@ export const mxUtils = {
    * See <mxEffects.animateChanges>. This is for backwards compatibility and
    * will be removed later.
    */
-  animateChanges: function(graph, changes) {
+  animateChanges: function(graph: any, changes: any) {
     // LATER: Deprecated, remove this function
     mxEffects.animateChanges.apply(this, arguments);
   },
@@ -2914,7 +2926,7 @@ export const mxUtils = {
    * See <mxEffects.cascadeOpacity>. This is for backwards compatibility and
    * will be removed later.
    */
-  cascadeOpacity: function(graph, cell, opacity) {
+  cascadeOpacity: function(graph: any, cell: any, opacity: any) {
     mxEffects.cascadeOpacity.apply(this, arguments);
   },
 
@@ -2924,7 +2936,7 @@ export const mxUtils = {
    * See <mxEffects.fadeOut>. This is for backwards compatibility and
    * will be removed later.
    */
-  fadeOut: function(node, from, remove, step, delay, isEnabled) {
+  fadeOut: function (node: any, from: any, remove: any, step: any, delay: any, isEnabled: any) {
     mxEffects.fadeOut.apply(this, arguments);
   },
 
@@ -2938,7 +2950,7 @@ export const mxUtils = {
    * node - DOM node to set the opacity for.
    * value - Opacity in %. Possible values are between 0 and 100.
    */
-  setOpacity: function(node, value) {
+  setOpacity: function(node: Element, value: number) {
     if (mxUtils.isVml(node)) {
       if (value >= 100) {
         node.style.filter = '';
@@ -2957,6 +2969,7 @@ export const mxUtils = {
         node.style.filter = 'alpha(opacity=' + value + ')';
       }
     } else {
+      // @ts-ignore
       node.style.opacity = value / 100;
     }
   },
@@ -2971,7 +2984,7 @@ export const mxUtils = {
    *
    * src - URL that points to the image to be displayed.
    */
-  createImage: function(src) {
+  createImage: function(src: string) {
     var imageNode = null;
 
     if (mxClient.IS_IE6 && document.compatMode != 'CSS1Compat') {
@@ -2993,7 +3006,7 @@ export const mxUtils = {
    * Sorts the given cells according to the order in the cell hierarchy.
    * Ascending is optional and defaults to true.
    */
-  sortCells: function(cells, ascending) {
+  sortCells: function(cells: mxCell[], ascending = true) {
     ascending = ascending != null ? ascending : true;
     var lookup = new mxDictionary();
     cells.sort(function(o1, o2) {
@@ -3029,7 +3042,7 @@ export const mxUtils = {
    *
    * style - String of the form [(stylename|key=value);].
    */
-  getStylename: function(style) {
+  getStylename: function(style: string) {
     if (style != null) {
       var pairs = style.split(';');
       var stylename = pairs[0];
@@ -3052,7 +3065,7 @@ export const mxUtils = {
    *
    * style - String of the form [(stylename|key=value);].
    */
-  getStylenames: function(style) {
+  getStylenames: function(style: string) {
     var result = [];
 
     if (style != null) {
@@ -3075,7 +3088,7 @@ export const mxUtils = {
    * returns -1 if the given stylename does not occur (as a stylename) in the
    * given style, otherwise it returns the index of the first character.
    */
-  indexOfStylename: function(style, stylename) {
+  indexOfStylename: function(style: string, stylename: string) {
     if (style != null && stylename != null) {
       var tokens = style.split(';');
       var pos = 0;
@@ -3098,7 +3111,7 @@ export const mxUtils = {
    * Adds the specified stylename to the given style if it does not already
    * contain the stylename.
    */
-  addStylename: function(style, stylename) {
+  addStylename: function(style: string, stylename: string) {
     if (mxUtils.indexOfStylename(style, stylename) < 0) {
       if (style == null) {
         style = '';
@@ -3118,7 +3131,7 @@ export const mxUtils = {
    * Removes all occurrences of the specified stylename in the given style
    * and returns the updated style. Trailing semicolons are not preserved.
    */
-  removeStylename: function(style, stylename) {
+  removeStylename: function(style: string, stylename: string) {
     var result = [];
 
     if (style != null) {
@@ -3140,7 +3153,7 @@ export const mxUtils = {
    * Removes all stylenames from the given style and returns the updated
    * style.
    */
-  removeAllStylenames: function(style) {
+  removeAllStylenames: function(style: string) {
     var result = [];
 
     if (style != null) {
@@ -3170,7 +3183,7 @@ export const mxUtils = {
    * key - Key of the style to be changed.
    * value - New value for the given key.
    */
-  setCellStyles: function(model, cells, key, value) {
+  setCellStyles: function (model: mxGraphModel, cells: mxCell[], key: string, value: string) {
     if (cells != null && cells.length > 0) {
       model.beginUpdate();
       try {
@@ -3199,7 +3212,7 @@ export const mxUtils = {
    * key - Key of the style to be changed.
    * value - New value for the given key.
    */
-  setStyle: function(style, key, value) {
+  setStyle: function(style: string, key: string, value: string) {
     var isValue =
       value != null && (typeof value.length == 'undefined' || value.length > 0);
 
@@ -3275,7 +3288,7 @@ export const mxUtils = {
    * flag - Integer for the bit to be changed.
    * value - Optional boolean value for the flag.
    */
-  setCellStyleFlags: function(model, cells, key, flag, value) {
+  setCellStyleFlags: function (model: mxGraphModel, cells: mxCell[], key: string, flag: number, value: string) {
     if (cells != null && cells.length > 0) {
       model.beginUpdate();
       try {
@@ -3309,7 +3322,7 @@ export const mxUtils = {
    * flag - Integer for the bit to be changed.
    * value - Optional boolean value for the given flag.
    */
-  setStyleFlag: function(style, key, flag, value) {
+  setStyleFlag: function (style: string, key: string, flag: number, value: string) {
     if (style == null || style.length == 0) {
       if (value || value == null) {
         style = key + '=' + flag;
@@ -3365,7 +3378,7 @@ export const mxUtils = {
    * left alignment. Y is -0.5 for middle, -1 for bottom and 0 for top
    * alignment. Default values for missing arguments is top, left.
    */
-  getAlignmentAsPoint: function(align, valign) {
+  getAlignmentAsPoint: function(align: string, valign: string) {
     var dx = 0;
     var dy = 0;
 
@@ -3410,7 +3423,7 @@ export const mxUtils = {
    * is <mxConstants.DEFAULT_FONTFAMILY>.
    * textWidth - Optional width for text wrapping.
    */
-  getSizeForString: function(text, fontSize, fontFamily, textWidth) {
+  getSizeForString: function(text: string, fontSize: number, fontFamily: string, textWidth: number) {
     fontSize = fontSize != null ? fontSize : mxConstants.DEFAULT_FONTSIZE;
     fontFamily =
       fontFamily != null ? fontFamily : mxConstants.DEFAULT_FONTFAMILY;
@@ -3449,7 +3462,7 @@ export const mxUtils = {
   /**
    * Function: getViewXml
    */
-  getViewXml: function(graph, scale, cells, x0, y0) {
+  getViewXml: function (graph: mxGraph, scale: number, cells: mxCell[], x0: number, y0: number) {
     x0 = x0 != null ? x0 : 0;
     y0 = y0 != null ? y0 : 0;
     scale = scale != null ? scale : 1;
@@ -3527,7 +3540,7 @@ export const mxUtils = {
    * Default is <mxConstants.PAGE_FORMAT_A4_PORTRAIT>.
    * border - The border along each side of every page.
    */
-  getScaleForPageCount: function(pageCount, graph, pageFormat, border) {
+  getScaleForPageCount: function (pageCount: number, graph: mxGraph, pageFormat: mxRectangle, border: number) {
     if (pageCount < 1) {
       // We can't work with less than 1 page, return no scale
       // change
@@ -3663,13 +3676,13 @@ export const mxUtils = {
    * w - Optional width of the graph view.
    * h - Optional height of the graph view.
    */
-  show: function(graph, doc, x0, y0, w, h) {
+  show: function (graph: mxGraph, doc: Document, x0: number, y0: number, w: number, h: number) {
     x0 = x0 != null ? x0 : 0;
     y0 = y0 != null ? y0 : 0;
 
     if (doc == null) {
       var wnd = window.open();
-      doc = wnd.document;
+      doc = wnd!.document;
     } else {
       doc.open();
     }
@@ -3715,6 +3728,7 @@ export const mxUtils = {
       // Copies the stylesheets without having to load them again
       for (var i = 0; i < document.styleSheets.length; i++) {
         try {
+          // @ts-ignore
           html += document.styleSheets[i].cssText;
         } catch (e) {
           // ignore security exception
@@ -3764,8 +3778,8 @@ export const mxUtils = {
       doc.close();
 
       var outer = doc.createElement('div');
-      outer.position = 'absolute';
-      outer.overflow = 'hidden';
+      outer.style.position = 'absolute';
+      outer.style.overflow = 'hidden';
       outer.style.width = w + 'px';
       outer.style.height = h + 'px';
 
@@ -3824,21 +3838,21 @@ export const mxUtils = {
    *
    * graph - <mxGraph> to be printed.
    */
-  printScreen: function(graph) {
+  printScreen: function (graph: mxGraph) {
     var wnd = window.open();
     var bounds = graph.getGraphBounds();
-    mxUtils.show(graph, wnd.document);
+    mxUtils.show(graph, wnd!.document);
 
     var print = function() {
-      wnd.focus();
-      wnd.print();
-      wnd.close();
+      wnd!.focus();
+      wnd!.print();
+      wnd!.close();
     };
 
     // Workaround for Google Chrome which needs a bit of a
     // delay in order to render the SVG contents
     if (mxClient.IS_GC) {
-      wnd.setTimeout(print, 500);
+      wnd!.setTimeout(print, 500);
     } else {
       print();
     }
@@ -3856,7 +3870,7 @@ export const mxUtils = {
    * isInternalWindow - Optional boolean indicating if an mxWindow should be
    * used instead of a new browser window. Default is false.
    */
-  popup: function(content, isInternalWindow) {
+  popup: function(content: string, isInternalWindow = false) {
     if (isInternalWindow) {
       var div = document.createElement('div');
 
@@ -3919,7 +3933,7 @@ export const mxUtils = {
    *
    * message - String specifying the message to be displayed.
    */
-  alert: function(message) {
+  alert: function(message: string) {
     alert(message);
   },
 
@@ -3934,8 +3948,8 @@ export const mxUtils = {
    * message - String specifying the message to be displayed.
    * defaultValue - Optional string specifying the default value.
    */
-  prompt: function(message, defaultValue) {
-    return prompt(message, defaultValue != null ? defaultValue : '');
+  prompt: function(message: string, defaultValue = '') {
+    return prompt(message, defaultValue);
   },
 
   /**
@@ -3948,7 +3962,7 @@ export const mxUtils = {
    *
    * message - String specifying the message to be displayed.
    */
-  confirm: function(message) {
+  confirm: function(message: string) {
     return confirm(message);
   },
 
@@ -3967,7 +3981,7 @@ export const mxUtils = {
    * close - Optional boolean indicating whether to add a close button.
    * icon - Optional icon for the window decoration.
    */
-  error: function(message, width, close, icon) {
+  error: function(message: string, width: number, close: boolean, icon: string) {
     var div = document.createElement('div');
     div.style.padding = '20px';
 
@@ -4098,16 +4112,16 @@ export const mxUtils = {
    * location (x, y). Default is mxGraph.getCellAt.
    */
   makeDraggable: function(
-    element,
-    graphF,
-    funct,
-    dragElement,
-    dx,
-    dy,
-    autoscroll,
-    scalePreview,
-    highlightDropTargets,
-    getDropTarget
+    element: Element,
+    graphF: mxGraph,
+    funct: any,
+    dragElement?: Element,
+    dx?: number,
+    dy?: number,
+    autoscroll?: boolean,
+    scalePreview?: boolean,
+    highlightDropTargets?: boolean,
+    getDropTarget?: any
   ) {
     var dragSource = new mxDragSource(element, funct);
     dragSource.dragOffset = new mxPoint(
@@ -4141,11 +4155,11 @@ export const mxUtils = {
       };
 
       if (scalePreview) {
-        dragSource.createPreviewElement = function(graph) {
+        dragSource.createPreviewElement = function(graph: mxGraph) {
           var elt = dragElement.cloneNode(true);
 
-          var w = parseInt(elt.style.width);
-          var h = parseInt(elt.style.height);
+          var w = parseInt(elt.style.width!);
+          var h = parseInt(elt.style.height!);
           elt.style.width = Math.round(w * graph.view.scale) + 'px';
           elt.style.height = Math.round(h * graph.view.scale) + 'px';
 

@@ -1,4 +1,9 @@
 import { mxClient } from '../mxClient';
+import mxRectangle from "./mxRectangle";
+
+export interface IPlainObject {
+  [key: string]: any;
+}
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
  * Copyright (c) 2006-2015, Gaudenz Alder

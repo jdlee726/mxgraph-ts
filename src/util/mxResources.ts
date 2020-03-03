@@ -6,6 +6,7 @@ declare global {
 import { mxClient } from '../mxClient/index';
 import { mxUtils } from './mxUtils';
 import { mxConstants } from './mxConstants';
+import mxXmlRequest from "./mxXmlRequest";
 
 /**
  * Variable: mxResourceExtension
@@ -222,7 +223,7 @@ export const mxResources = {
    * lan - The language for which the file should be loaded.
    * callback - Optional callback for asynchronous loading.
    */
-  add: function(basename:string, lan: string | null, callback?: ()=>void) {
+  add: function(basename:string, lan?: string | null, callback?: ()=>void) {
     lan =
       lan != null
         ? lan
@@ -239,7 +240,7 @@ export const mxResources = {
           if (callback) {
             mxUtils.get(
               specialBundle,
-              function(req) {
+              function (req: mxXmlRequest) {
                 mxResources.parse(req.getText());
                 callback();
               },
@@ -267,7 +268,7 @@ export const mxResources = {
         if (callback) {
           mxUtils.get(
             defaultBundle,
-            function(req) {
+            function (req: mxXmlRequest) {
               mxResources.parse(req.getText());
               loadSpecialBundle();
             },
@@ -301,7 +302,7 @@ export const mxResources = {
    * Parses the key, value pairs in the specified
    * text and stores them as local resources.
    */
-  parse: function(text: string) {
+  parse: function(text?: string) {
     if (text != null) {
       var lines = text.split('\n');
 

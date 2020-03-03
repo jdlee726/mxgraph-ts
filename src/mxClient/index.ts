@@ -267,7 +267,7 @@ export const mxClient = {
    *
    * Contains the base names of the default bundles if mxLoadResources is false.
    */
-  defaultBundles: [],
+  defaultBundles: [] as string[],
 
   /**
    * Function: isBrowserSupported
