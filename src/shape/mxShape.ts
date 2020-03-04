@@ -119,7 +119,7 @@ export default class mxShape {
      *
      * Holds the outermost DOM node that represents this shape.
      */
-    node?: Element | SVGElement | null | null;
+    node?: HTMLElement | SVGElement | null | null;
 
     /**
      * Variable: state
@@ -264,7 +264,7 @@ export default class mxShape {
      *
      * container - DOM node that will contain the shape.
      */
-    init = (container?: Element | SVGElement | null) => {
+    init = (container?: HTMLElement | SVGElement | null) => {
         if (this.node) {
             this.node = this.create(container);
 
@@ -279,7 +279,7 @@ export default class mxShape {
      *
      * Sets the styles to their default values.
      */
-    initStyles = (container?: Element) => {
+    initStyles = (container?: HTMLElement) => {
         this.strokewidth = 1;
         this.rotation = 0;
         this.opacity = 100;
@@ -333,7 +333,7 @@ export default class mxShape {
      *
      * container - DOM node that will contain the shape.
      */
-    create = function (container?: Element | SVGElement | null) {
+    create = function (container?: HTMLElement | SVGElement | null) {
         var node = null;
 
         // @ts-ignore
@@ -710,7 +710,7 @@ export default class mxShape {
      *
      * Allow optimization by replacing VML with HTML.
      */
-    updateHtmlFilters = (node?: Element | SVGElement | null) => {
+    updateHtmlFilters = (node?: HTMLElement | SVGElement | null) => {
         var f = '';
 
         if (this.opacity < 100) {
@@ -765,7 +765,7 @@ export default class mxShape {
      *
      * Allow optimization by replacing VML with HTML.
      */
-    updateHtmlColors = (node?: Element | SVGElement | null) => {
+    updateHtmlColors = (node?: HTMLElement | SVGElement | null) => {
         let color = this.stroke;
 
         if(!node) return;
@@ -808,7 +808,7 @@ export default class mxShape {
      *
      * Allow optimization by replacing VML with HTML.
      */
-    updateHtmlBounds = (node?: Element | SVGElement | null) => {
+    updateHtmlBounds = (node?: HTMLElement | SVGElement | null) => {
         if(!node) return;
 
         var sw = (document.documentMode >= 9) ? 0 : Math.ceil(this.strokewidth * this.scale);
@@ -1499,7 +1499,7 @@ export default class mxShape {
      * 
      * Paints the line shape.
      */
-    setTransparentBackgroundImage = (node: Element | SVGElement | null) => {
+    setTransparentBackgroundImage = (node: HTMLElement | SVGElement | null) => {
         node.style.backgroundImage = 'url(\'' + mxClient.imageBasePath + '/transparent.gif\')';
     };
 

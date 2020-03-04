@@ -22,9 +22,6 @@ declare global {
       empty: () => void;
     };
   }
-  interface HTMLElement {
-    text?: string;
-  }
   interface Node {
     style: CSSStyleDeclaration;
     tagUrn?: string;
@@ -2515,7 +2512,7 @@ export const mxUtils = {
    * scollOffset - Optional boolean to add the scroll offset of the document.
    * Default is false.
    */
-  getOffset: function(container: Element, scrollOffset: boolean = false) {
+  getOffset: function(container: HTMLElement, scrollOffset: boolean = false) {
     var offsetLeft = 0;
     var offsetTop = 0;
 
@@ -2597,7 +2594,7 @@ export const mxUtils = {
    * includeDocument - Whether the scroll origin of the document should be
    * included. Default is true.
    */
-  getScrollOrigin: function(node: Element, includeAncestors = false, includeDocument = true) {
+  getScrollOrigin: function(node: HTMLElement, includeAncestors = false, includeDocument = true) {
     includeAncestors = includeAncestors != null ? includeAncestors : false;
     includeDocument = includeDocument != null ? includeDocument : true;
 
@@ -2650,7 +2647,7 @@ export const mxUtils = {
    * x - X-coordinate of the point to be converted.
    * y - Y-coordinate of the point to be converted.
    */
-  convertPoint: function(container: Element, x: number, y: number) {
+  convertPoint: function(container: HTMLElement, x: number, y: number) {
     var origin = mxUtils.getScrollOrigin(container, false);
     var offset = mxUtils.getOffset(container);
 
@@ -2950,7 +2947,7 @@ export const mxUtils = {
    * node - DOM node to set the opacity for.
    * value - Opacity in %. Possible values are between 0 and 100.
    */
-  setOpacity: function(node: Element, value: number) {
+  setOpacity: function(node: HTMLElement, value: number) {
     if (mxUtils.isVml(node)) {
       if (value >= 100) {
         node.style.filter = '';
@@ -4112,10 +4109,10 @@ export const mxUtils = {
    * location (x, y). Default is mxGraph.getCellAt.
    */
   makeDraggable: function(
-    element: Element,
+    element: HTMLElement,
     graphF: mxGraph,
     funct: any,
-    dragElement?: Element,
+    dragElement?: HTMLElement,
     dx?: number,
     dy?: number,
     autoscroll?: boolean,

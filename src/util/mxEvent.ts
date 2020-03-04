@@ -419,8 +419,8 @@ export const mxEvent =
 	 * 
 	 * Returns true if the event was generated using a touch device (not a pen or mouse).
 	 */
-    isMultiTouchEvent: function (evt: TouchEvent) {
-        return (evt.type != null && evt.type.indexOf('touch') == 0 && evt.touches != null && evt.touches.length > 1);
+    isMultiTouchEvent: function (evt: any) {
+		return (evt && evt.type != null && evt.type.indexOf('touch') == 0 && evt.touches != null && evt.touches.length > 1);
     },
 
 	/**
@@ -428,9 +428,8 @@ export const mxEvent =
 	 * 
 	 * Returns true if the event was generated using a mouse (not a pen or touch device).
 	 */
-    isMouseEvent: function (evt: PointerEvent) {
-        // @ts-ignore
-        return (evt.pointerType != null) ? (evt.pointerType == 'mouse' || evt.pointerType === evt.MSPOINTER_TYPE_MOUSE) : ((evt.mozInputSource != null) ? evt.mozInputSource == 1 : evt.type.indexOf('mouse') == 0);
+    isMouseEvent: function (evt: any) {
+		return (evt && evt.pointerType != null) ? (evt.pointerType == 'mouse' || evt.pointerType === evt.MSPOINTER_TYPE_MOUSE) : ((evt.mozInputSource != null) ? evt.mozInputSource == 1 : evt.type.indexOf('mouse') == 0);
     },
 
 	/**

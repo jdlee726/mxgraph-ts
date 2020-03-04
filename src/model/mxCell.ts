@@ -168,6 +168,9 @@ export default class mxCell {
      * Holds the edges.
      */
     edges: mxCell[] | null = null;
+    
+
+    overlays: mxCellOverlay[] | null = null;
 
 
     /**
@@ -190,7 +193,7 @@ export default class mxCell {
     mxTransient = ['id', 'value', 'parent', 'source',
         'target', 'children', 'edges'];
 
-    constructor(value: IPlainObject, geometry: mxGeometry, style: string) {
+    constructor(value: any, geometry?: mxGeometry, style?: string) {
         this.value = value;
         this.setGeometry(geometry);
         this.setStyle(style);
@@ -287,7 +290,7 @@ export default class mxCell {
      *
      * Sets the string to be used as the <style>.
      */
-    setStyle = (style: string) => {
+    setStyle = (style?: string) => {
         this.style = style;
     };
 
@@ -399,7 +402,7 @@ export default class mxCell {
      * 
      * collapsed - Boolean that specifies the new collapsed state.
      */
-    setCollapsed = (collapsed: boolean) {
+    setCollapsed =  (collapsed: boolean) => {
         this.collapsed = collapsed;
     };
 

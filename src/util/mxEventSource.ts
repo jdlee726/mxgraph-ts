@@ -26,6 +26,10 @@ import mxEventObject from "./mxEventObject";
  * Constructs a new event source.
  */
 
+export type TSender = mxEventSource | EventTarget | null;
+
+export type mxEventHandler = (sender: TSender, evt: mxEventObject) => void;
+
 export default class mxEventSource {
 
 
@@ -49,8 +53,8 @@ export default class mxEventSource {
      *
      * Optional source for events. Default is null.
      */
-    eventSource: any;
-    constructor(eventSource: mxEventSource) {
+    eventSource: mxEventSource | EventTarget | null;
+    constructor(eventSource: mxEventSource | EventTarget | null = null) {
         this.setEventSource(eventSource);
     }
 
@@ -80,7 +84,7 @@ export default class mxEventSource {
      * Returns <eventSource>.
      */
     getEventSource = () => {
-        return this.eventSource;
+        return this.eventSource || null;
     };
 
     /**
@@ -149,7 +153,7 @@ export default class mxEventSource {
  * sender - Optional sender to be passed to the listener. Default value is
  * the return value of <getEventSource>.
  */
-    fireEvent = (evt?: mxEventObject, sender?: mxEventSource) => {
+    fireEvent = (evt?: mxEventObject, sender: TSender = null) => {
         if (this.eventListeners != null && this.isEventsEnabled()) {
             if (evt == null) {
                 evt = new mxEventObject();

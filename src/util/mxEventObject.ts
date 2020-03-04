@@ -40,7 +40,7 @@ export default class mxEventObject {
  *
  * Holds the properties as an associative array.
  */
-    properties?: {[key: string]: any};
+    properties: {[key: string]: any};
 
 /**
 * Variable: consumed
@@ -51,7 +51,7 @@ export default class mxEventObject {
 
     constructor(name?: string, ...properties: any[]) {
         this.name = name;
-        this.properties = [];
+        this.properties = {};
         for (var i = 1; i < properties.length; i += 2) {
             if (properties[i + 1] != null) {
                 this.properties[properties[i]] = properties[i + 1];
@@ -75,6 +75,15 @@ export default class mxEventObject {
  */
     getProperties = () => {
         return this.properties;
+    };
+
+    /**
+     * Function: getProperty
+     * 
+     * Returns the property for the given key.
+     */
+    getProperty = (key: string) => {
+        return this.properties[key];
     };
 
 

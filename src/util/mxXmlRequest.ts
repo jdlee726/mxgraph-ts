@@ -318,13 +318,13 @@ export default class mxXmlRequest {
 
         if (this.request != null) {
             if (onload != null) {
-                this.request.onreadystatechange = mxUtils.bind(this, () => {
+                this.request.onreadystatechange = () => {
                     if (this.isReady()) {
                         onload(this);
                         // @ts-ignore
                         this.request!.onreadystatechaange = null;
                     }
-                });
+                };
             }
 
             this.request.open(this.method, this.url, this.async,
