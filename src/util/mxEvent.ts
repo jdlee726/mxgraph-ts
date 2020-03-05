@@ -1,6 +1,7 @@
 import { mxClient } from "../mxClient";
 import mxCellState from "../view/mxCellState";
 import mxMouseEvent from "./mxMouseEvent";
+
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
  * Copyright (c) 2006-2015, Gaudenz Alder
@@ -11,9 +12,11 @@ export interface IMxEventObject {
     f: EventHandlerNonNull;
 }
 
+export type EventHandlerOrNull = EventHandlerNonNull | null;
+
 // export type IMxEventElement = Element & { mxListenerList: IMxEventObject[] | null } & { attachEvent: any, detachEvent: any}
 
-export interface IMxEventElement extends Element {
+export interface IMxEventElement extends HTMLElement {
 	mxListenerList?: IMxEventObject[] | null;
 	attachEvent?: any;
 	detachEvent?: any;
@@ -132,7 +135,7 @@ export const mxEvent =
 	 * is false and <mxClient.IS_TOUCH> is true then the respective touch events
 	 * will be registered as well as the mouse events.
 	 */
-    addGestureListeners: function (node: IMxEventElement, startListener: EventHandlerNonNull, moveListener: EventHandlerNonNull, endListener: EventHandlerNonNull) {
+    addGestureListeners: function (node: IMxEventElement, startListener?: EventHandlerOrNull, moveListener?: EventHandlerOrNull, endListener?: EventHandlerOrNull) {
         if (startListener != null) {
             mxEvent.addListener(node, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown', startListener);
         }
@@ -166,7 +169,7 @@ export const mxEvent =
 	 * Removes the given listeners from mousedown, mousemove, mouseup and the
 	 * respective touch events if <mxClient.IS_TOUCH> is true.
 	 */
-    removeGestureListeners: function (node: IMxEventElement, startListener: EventHandlerNonNull, moveListener: EventHandlerNonNull, endListener: EventHandlerNonNull) {
+	removeGestureListeners: function (node: IMxEventElement, startListener?: EventHandlerNonNull | null, moveListener?: EventHandlerNonNull | null, endListener?: EventHandlerNonNull | null) {
         if (startListener != null) {
             mxEvent.removeListener(node, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown', startListener);
         }
@@ -399,8 +402,7 @@ export const mxEvent =
 	 * 
 	 * Returns true if the event was generated using a touch device (not a pen or mouse).
 	 */
-    isTouchEvent: function (evt: PointerEvent) {
-        // @ts-ignore
+    isTouchEvent: function (evt: any) {
         return (evt.pointerType != null) ? (evt.pointerType == 'touch' || evt.pointerType === evt.MSPOINTER_TYPE_TOUCH) : ((evt.mozInputSource != null) ? evt.mozInputSource == 5 : evt.type.indexOf('touch') == 0);
     },
 
@@ -409,8 +411,7 @@ export const mxEvent =
 	 * 
 	 * Returns true if the event was generated using a pen (not a touch device or mouse).
 	 */
-    isPenEvent: function (evt: PointerEvent) {
-        // @ts-ignore
+    isPenEvent: function (evt: any) {
         return (evt.pointerType != null) ? (evt.pointerType == 'pen' || evt.pointerType === evt.MSPOINTER_TYPE_PEN) : ((evt.mozInputSource != null) ? evt.mozInputSource == 2 : evt.type.indexOf('pen') == 0);
     },
 

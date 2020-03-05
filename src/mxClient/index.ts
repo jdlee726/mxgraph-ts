@@ -153,6 +153,24 @@ export const mxClient = {
    */
   IS_IOS: navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? true : false,
 
+
+	/**
+	 * Variable: IOS_VERSION
+	 * 
+	 * Returns the major version number for iOS devices or 0 if the
+	 * device is not an iOS device.
+	 */
+  IOS_VERSION: (function () {
+    if ((/iP(hone|od|ad)/.test(navigator.platform))) {
+      var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+
+      if (v != null && v.length > 0) {
+        return parseInt(v[1]);
+      }
+    }
+
+    return 0;
+  })(),
   /**
    * Variable: IS_GC
    *

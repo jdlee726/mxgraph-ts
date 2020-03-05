@@ -166,6 +166,9 @@ export default class mxCellState extends mxRectangle {
 
     boundingBox?: mxRectangle;
 
+    control?: mxImageShape;
+    overlays?: mxDictionary;
+
     constructor(view: mxGraphView, cell: mxCell, style: IPlainObject) {
         super();
         this.view = view;

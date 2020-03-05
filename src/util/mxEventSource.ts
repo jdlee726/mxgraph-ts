@@ -1,4 +1,5 @@
 import mxEventObject from "./mxEventObject";
+import { IMxEventElement } from "./mxEvent";
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
  * Copyright (c) 2006-2015, Gaudenz Alder
@@ -26,7 +27,7 @@ import mxEventObject from "./mxEventObject";
  * Constructs a new event source.
  */
 
-export type TSender = mxEventSource | EventTarget | null;
+export type TSender = IMxEventElement  | null; // mxEventSource | null |
 
 export type mxEventHandler = (sender: TSender, evt: mxEventObject) => void;
 
@@ -46,15 +47,15 @@ export default class mxEventSource {
      * contains the event name followed by the respective listener for each
      * registered listener.
      */
-        eventListeners: any[];
+    eventListeners: any[];
 
     /**
      * Variable: eventSource
      *
      * Optional source for events. Default is null.
      */
-    eventSource: mxEventSource | EventTarget | null;
-    constructor(eventSource: mxEventSource | EventTarget | null = null) {
+    eventSource: TSender;
+    constructor(eventSource: TSender = null) {
         this.setEventSource(eventSource);
     }
 
@@ -164,6 +165,7 @@ export default class mxEventSource {
             }
 
             if (sender == null) {
+                // @ts-ignore
                 sender = this;
             }
 

@@ -1996,8 +1996,7 @@ export const mxUtils = {
    *
    * Rotates the given point by the given cos and sin.
    */
-  getRotatedPoint: function (pt: mxPoint, cos: number, sin: number, c: mxPoint) {
-    c = c != null ? c : new mxPoint();
+  getRotatedPoint: function (pt: mxPoint, cos: number, sin: number, c: mxPoint = new mxPoint()) {
     var x = pt.x - c.x;
     var y = pt.y - c.y;
 
