@@ -1,6 +1,7 @@
 import { mxClient } from "../mxClient";
 import mxCellState from "../view/mxCellState";
 import mxMouseEvent from "./mxMouseEvent";
+import mxGraph from "../view/mxGraph";
 
 /**
  * Copyright (c) 2006-2015, JGraph Ltd

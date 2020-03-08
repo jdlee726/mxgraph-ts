@@ -9,6 +9,7 @@ import mxRectangle from "./mxRectangle";
 import mxXmlRequest, { ERequestMethod, TRequestOnloadCallback, TRequestOnErrorCallback } from "./mxXmlRequest";
 import mxStylesheet from '../view/mxStylesheet';
 import mxCell from '../model/mxCell';
+import mxGraph from '../view/mxGraph';
 
 declare global {
   var _mxJavaScriptExpression: any;

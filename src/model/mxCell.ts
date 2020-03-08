@@ -172,6 +172,8 @@ export default class mxCell {
 
     overlays: mxCellOverlay[] | null = null;
 
+    invalidating: boolean;
+
 
     /**
      * Callback: onInit

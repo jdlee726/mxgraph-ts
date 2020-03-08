@@ -1625,7 +1625,7 @@ export default class mxGraph extends mxEventSource {
     horizontalPageBreaks?: mxPolyline[];
     verticalPageBreaks?: mxPolyline[];
 
-    container: HTMLElement | null;
+    container: HTMLElement;
     shiftPreview1: HTMLElement | null = null;
     shiftPreview2: HTMLElement | null = null;
     lastEvent?: MouseEvent | null = null;
@@ -2628,7 +2628,7 @@ export default class mxGraph extends mxEventSource {
      * evt - Mouseevent that represents the doubleclick.
      * cell - Optional <mxCell> under the mousepointer.
      */
-    dblClick = (evt: MouseEvent, cell: mxCell) => {
+    dblClick = (evt: MouseEvent, cell?: mxCell | null) => {
         var mxe = new mxEventObject(mxEvent.DOUBLE_CLICK, 'event', evt, 'cell', cell);
         this.fireEvent(mxe);
 
@@ -6607,7 +6607,7 @@ export default class mxGraph extends mxEventSource {
      * cell - <mxCell> whose offset should be returned.
      */
     getChildOffsetForCell = (cell: mxCell) => {
-        return null;
+        return null as unknown as mxPoint;
     };
 
     /**

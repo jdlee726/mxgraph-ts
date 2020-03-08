@@ -3,6 +3,7 @@ import { IPlainObject } from "../util/mxConstants";
 import mxRectangle from "../util/mxRectangle";
 import mxShape from "../shape/mxShape";
 import mxCell from "../model/mxCell";
+import mxGraphView from "./mxGraphView";
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
  * Copyright (c) 2006-2015, Gaudenz Alder
@@ -76,7 +77,7 @@ export default class mxCellState extends mxRectangle {
      * <mxPoint> that holds the origin for all child cells. Default is a new
      * empty <mxPoint>.
      */
-    origin?: mxPoint;
+    origin: mxPoint;
 
     /**
      * Variable: absolutePoints
@@ -84,7 +85,7 @@ export default class mxCellState extends mxRectangle {
      * Holds an array of <mxPoints> that represent the absolute points of an
      * edge.
      */
-    absolutePoints?: (mxPoint | null)[];
+    absolutePoints: (mxPoint | null)[];
 
     /**
      * Variable: absoluteOffset
@@ -93,7 +94,7 @@ export default class mxCellState extends mxRectangle {
      * absolute coordinates of the label position. For vertices, this is the
      * offset of the label relative to the top, left corner of the vertex. 
      */
-    absoluteOffset?: mxPoint;
+    absoluteOffset: mxPoint;
 
     /**
      * Variable: visibleSourceState
