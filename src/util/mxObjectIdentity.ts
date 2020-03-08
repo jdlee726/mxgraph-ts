@@ -36,7 +36,7 @@ export const  mxObjectIdentity =
 	 * Returns the ID for the given object or function or null if no object
 	 * is specified.
 	 */
-    get: function (obj: IPlainObject) {
+    get: function (obj: IPlainObject | null) {
         if (obj != null) {
             if (obj[mxObjectIdentity.FIELD_NAME] == null) {
                 if (typeof obj === 'object') {

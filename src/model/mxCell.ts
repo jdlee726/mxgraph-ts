@@ -1,5 +1,7 @@
-import { IPlainObject, mxConstants } from "../util/mxConstants";
+import { mxConstants } from "../util/mxConstants";
 import { mxUtils } from "../util/mxUtils";
+import mxGeometry from "./mxGeometry";
+import mxCellOverlay from "../view/mxCellOverlay";
 
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
@@ -75,7 +77,7 @@ export default class mxCell {
      *
      * Holds the Id. Default is null.
      */
-    id?: string | null;
+    id: string | number;
 
     /**
      * Variable: value
@@ -195,7 +197,7 @@ export default class mxCell {
     mxTransient = ['id', 'value', 'parent', 'source',
         'target', 'children', 'edges'];
 
-    constructor(value: any, geometry?: mxGeometry, style?: string) {
+    constructor(value?: any, geometry?: mxGeometry, style?: string) {
         this.value = value;
         this.setGeometry(geometry);
         this.setStyle(style);
@@ -274,7 +276,7 @@ export default class mxCell {
      *
      * Sets the <mxGeometry> to be used as the <geometry>.
      */
-    setGeometry = (geometry: mxGeometry) => {
+    setGeometry = (geometry?: mxGeometry | null) => {
         this.geometry = geometry;
     };
 
@@ -515,14 +517,10 @@ export default class mxCell {
      * index - Optional integer that specifies the index at which the child
      * should be inserted into the child array.
      */
-    insert = (child: mxCell | null, index: number | null) => {
+    insert = (child: mxCell | null, index = this.getChildCount()) => {
         if (child != null) {
-            if (index == null) {
-                index = this.getChildCount();
-
-                if (child.getParent() == this) {
-                    index--;
-                }
+            if (child.getParent() == this) {
+                index--;
             }
 
             child.removeFromParent();
@@ -720,7 +718,7 @@ export default class mxCell {
      * defaultValue - Optional default value to use if the attribute has no
      * value.
      */
-    getAttribute = (name: string, defaultValue: any) => {
+    getAttribute = (name: string, defaultValue?: any) => {
         var userObject = this.getValue();
 
         var val = (userObject != null &&
