@@ -15,8 +15,10 @@ import mxCell from '../model/mxCell';
 import mxStylesheet from "./mxStylesheet";
 import mxCellState from'./mxCellState';
 import { mxClient } from '../mxClient/'
-
-type TChange = mxRootChange | mxChildChange | mxTerminalChange | mxStyleChange | mxValueChange | mxGeometryChange;
+import mxGraphModel, { TChange, mxChildChange, mxRootChange} from "../model/mxGraphModel";
+import mxGraphView from "./mxGraphView";
+import mxDictionary from "../util/mxDictionary";
+import mxCellOverlay from "./mxCellOverlay";
 
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
@@ -695,14 +697,14 @@ export default class mxGraph extends mxEventSource {
      * 
      * Holds the <mxGraphModel> that contains the cells to be displayed.
      */
-    model: mxGraphModel | null = null;
+    model: mxGraphModel;
 
     /**
      * Variable: view
      * 
      * Holds the <mxGraphView> that caches the <mxCellStates> for the cells.
      */
-    view: mxGraphView | null = null;
+    view: mxGraphView;
 
     /**
      * Variable: stylesheet
@@ -1931,7 +1933,7 @@ export default class mxGraph extends mxEventSource {
         var cells: mxCell[] = [];
 
         var addCell = (cell: mxCell) => {
-            if (!dict.get(cell) && this.model.contains(cell)) {
+            if (!dict.get(cell) && this.model && this.model.contains(cell)) {
                 if (this.model.isEdge(cell) || this.model.isVertex(cell)) {
                     dict.put(cell, true);
                     cells.push(cell);
@@ -1940,7 +1942,7 @@ export default class mxGraph extends mxEventSource {
                     var childCount = this.model.getChildCount(cell);
 
                     for (var i = 0; i < childCount; i++) {
-                        addCell(this.model.getChildAt(cell, i));
+                        addCell(this.model.getChildAt(cell, i)!);
                     }
                 }
             }
@@ -1955,7 +1957,9 @@ export default class mxGraph extends mxEventSource {
                 if (change instanceof mxChildChange) {
                     cell = change.child;
                 }
-                else if (change.cell != null && change.cell instanceof mxCell) {
+                // @ts-ignore
+                else if (change && change.cell != null && change.cell instanceof mxCell) {
+                    // @ts-ignore
                     cell = change.cell;
                 }
 
@@ -1998,19 +2002,19 @@ export default class mxGraph extends mxEventSource {
         var removed = [];
 
         for (var i = 0; i < cells.length; i++) {
-            if (!this.model.contains(cells[i]) || !this.isCellVisible(cells[i])) {
+            if (this.model && !this.model.contains(cells[i]) || !this.isCellVisible(cells[i])) {
                 removed.push(cells[i]);
             }
             else {
-                var par = this.model.getParent(cells[i]);
+                var par = this.model && this.model.getParent(cells[i]);
 
-                while (par != null && par != this.view.currentRoot) {
+                while (par != null && par != this.view!.currentRoot) {
                     if (this.isCellCollapsed(par) || !this.isCellVisible(par)) {
                         removed.push(cells[i]);
                         break;
                     }
 
-                    par = this.model.getParent(par);
+                    par = this.model!.getParent(par);
                 }
             }
         }

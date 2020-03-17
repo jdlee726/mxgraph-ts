@@ -296,7 +296,7 @@ import { mxObjectIdentity } from "../util/mxObjectIdentity";
       */
      endingUpdate = false;
 
-     constructor(root: mxCell) {
+     constructor(root?: mxCell | null) {
          super();
          this.currentEdit = this.createUndoableEdit();
 
@@ -2551,3 +2551,4 @@ export class mxCellAttributeChange {
     };
 }
 
+export type TChange = mxRootChange | mxChildChange | mxTerminalChange | mxStyleChange | mxValueChange | mxGeometryChange;

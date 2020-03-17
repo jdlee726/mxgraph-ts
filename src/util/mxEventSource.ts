@@ -105,7 +105,7 @@ export default class mxEventSource {
  * 
  * The parameters of the listener are the sender and an <mxEventObject>.
  */
-    addListener = (name: string, funct: EventHandlerNonNull) => {
+    addListener = (name: string, funct: mxEventHandler) => {
         if (this.eventListeners == null) {
             this.eventListeners = [];
         }
@@ -120,7 +120,7 @@ export default class mxEventSource {
      *
      * Removes all occurrences of the given listener from <eventListeners>.
      */
-    removeListener =  (funct: EventHandlerNonNull) => {
+    removeListener =  (funct: mxEventHandler) => {
         if (this.eventListeners != null) {
             var i = 0;
 

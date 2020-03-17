@@ -166,7 +166,7 @@ export default class mxCellOverlay extends mxEventSource {
      * associated cell.
      */
     getBounds = (state: mxCellState) => {
-        var isEdge = state.view.graph.getModel().isEdge(state.cell);
+        var isEdge = state.view.graph.getModel()!.isEdge(state.cell);
         var s = state.view.scale;
         var pt = null as unknown as mxPoint;
 
