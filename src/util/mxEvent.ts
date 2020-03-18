@@ -481,7 +481,7 @@ export const mxEvent =
 	 * button might not be available on some systems. For handling a popup
 	 * trigger <isPopupTrigger> should be used.
 	 */
-    isRightMouseButton: function (evt: MouseEvent) {
+	isRightMouseButton: function (evt: KeyboardEvent) {
         if ('which' in evt) {
             return evt.which === 3;
         }
@@ -498,7 +498,7 @@ export const mxEvent =
 	 * returns true if the right button or the left button and control was
 	 * pressed on a Mac.
 	 */
-    isPopupTrigger: function (evt: MouseEvent) {
+    isPopupTrigger: function (evt: KeyboardEvent) {
         return mxEvent.isRightMouseButton(evt) || (mxClient.IS_MAC && mxEvent.isControlDown(evt) &&
             !mxEvent.isShiftDown(evt) && !mxEvent.isMetaDown(evt) && !mxEvent.isAltDown(evt));
     },
@@ -508,7 +508,7 @@ export const mxEvent =
 	 * 
 	 * Returns true if the shift key is pressed for the given event.
 	 */
-    isShiftDown: function (evt: MouseEvent) {
+    isShiftDown: function (evt: KeyboardEvent) {
         return (evt != null) ? evt.shiftKey : false;
     },
 
@@ -517,7 +517,7 @@ export const mxEvent =
 	 * 
 	 * Returns true if the alt key is pressed for the given event.
 	 */
-    isAltDown: function (evt: MouseEvent) {
+	isAltDown: function (evt: KeyboardEvent) {
         return (evt != null) ? evt.altKey : false;
     },
 
@@ -526,7 +526,7 @@ export const mxEvent =
 	 * 
 	 * Returns true if the control key is pressed for the given event.
 	 */
-    isControlDown: function (evt: MouseEvent) {
+	isControlDown: function (evt: KeyboardEvent) {
         return (evt != null) ? evt.ctrlKey : false;
     },
 
@@ -535,7 +535,7 @@ export const mxEvent =
 	 * 
 	 * Returns true if the meta key is pressed for the given event.
 	 */
-    isMetaDown: function (evt: MouseEvent) {
+	isMetaDown: function (evt: KeyboardEvent) {
         return (evt != null) ? evt.metaKey : false;
     },
 

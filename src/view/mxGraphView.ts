@@ -14,6 +14,7 @@ import { mxUtils } from "../util/mxUtils";
 import mxMouseEvent from "../util/mxMouseEvent";
 import { mxConstants } from "../util/mxConstants";
 import mxDictionary from "../util/mxDictionary";
+import { TElementNode } from "../shape/mxShape";
 
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
@@ -187,36 +188,36 @@ export default class mxGraphView extends mxEventSource {
      * 
      * During validation, this contains the last DOM node that was processed.
      */
-    lastNode: HTMLElement | null = null;
+    lastNode: TElementNode | null = null;
 
     /**
      * Variable: lastHtmlNode
      * 
      * During validation, this contains the last HTML DOM node that was processed.
      */
-    lastHtmlNode: HTMLElement | null = null;
+    lastHtmlNode: TElementNode | null = null;
 
     /**
      * Variable: lastForegroundNode
      * 
      * During validation, this contains the last edge's DOM node that was processed.
      */
-    lastForegroundNode: HTMLElement | null = null;
+    lastForegroundNode: TElementNode | null = null;
 
     /**
      * Variable: lastForegroundHtmlNode
      * 
      * During validation, this contains the last edge HTML DOM node that was processed.
      */
-    lastForegroundHtmlNode: HTMLElement | null = null;
+    lastForegroundHtmlNode: TElementNode | null = null;
 
-    canvas: HTMLElement | null;
-    textDiv?: HTMLElement | null;
-    placeholder?: HTMLElement;
-    backgroundPane?: HTMLElement | null;
-    drawPane?: HTMLElement | null;
-    overlayPane?: HTMLElement | null;
-    decoratorPane?: HTMLElement | null;
+    canvas: TElementNode | null;
+    textDiv?: TElementNode | null;
+    placeholder?: TElementNode;
+    backgroundPane?: TElementNode | null;
+    drawPane?: TElementNode | null;
+    overlayPane?: TElementNode | null;
+    decoratorPane?: TElementNode | null;
     backgroundImage?: mxImageShape | null;
     backgroundPageShape?: mxRectangleShape | null;
 
@@ -2057,7 +2058,7 @@ export default class mxGraphView extends mxEventSource {
      * create - Optional boolean indicating if a new state should be created
      * if it does not yet exist. Default is false.
      */
-    getState = (cell: mxCell, create = false) => {
+    getState = (cell: mxCell | null, create = false) => {
         create = create || false;
         var state = null;
 
@@ -2251,7 +2252,7 @@ export default class mxGraphView extends mxEventSource {
      * containers of the view.
      */
     isContainerEvent = (evt: MouseEvent) => {
-        var source = mxEvent.getSource(evt) as HTMLElement;
+        var source = mxEvent.getSource(evt) as TElementNode;
 
         return (source == this.graph.container ||
             source.parentNode == this.backgroundPane ||
@@ -2582,20 +2583,20 @@ export default class mxGraphView extends mxEventSource {
      */
     createSvg = () => {
         var container = this.graph.container;
-        this.canvas = document.createElementNS(mxConstants.NS_SVG, 'g') as HTMLElement;
+        this.canvas = document.createElementNS(mxConstants.NS_SVG, 'g') as TElementNode;
 
         // For background image
-        this.backgroundPane = document.createElementNS(mxConstants.NS_SVG, 'g') as HTMLElement;
+        this.backgroundPane = document.createElementNS(mxConstants.NS_SVG, 'g') as TElementNode;
         this.canvas.appendChild(this.backgroundPane);
 
         // Adds two layers (background is early feature)
-        this.drawPane = document.createElementNS(mxConstants.NS_SVG, 'g') as HTMLElement;
+        this.drawPane = document.createElementNS(mxConstants.NS_SVG, 'g') as TElementNode;
         this.canvas.appendChild(this.drawPane);
 
-        this.overlayPane = document.createElementNS(mxConstants.NS_SVG, 'g') as HTMLElement;
+        this.overlayPane = document.createElementNS(mxConstants.NS_SVG, 'g') as TElementNode;
         this.canvas.appendChild(this.overlayPane);
 
-        this.decoratorPane = document.createElementNS(mxConstants.NS_SVG, 'g') as HTMLElement;
+        this.decoratorPane = document.createElementNS(mxConstants.NS_SVG, 'g') as TElementNode;
         this.canvas.appendChild(this.decoratorPane);
 
         var root = document.createElementNS(mxConstants.NS_SVG, 'svg');
@@ -2625,7 +2626,7 @@ export default class mxGraphView extends mxEventSource {
      * 
      * Updates the style of the container after installing the SVG DOM elements.
      */
-    updateContainerStyle = (container: HTMLElement) => {
+    updateContainerStyle = (container: TElementNode) => {
         // Workaround for offset of container
         var style = mxUtils.getCurrentStyle(container);
 

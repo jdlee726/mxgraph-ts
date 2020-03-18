@@ -4,7 +4,10 @@ import mxPoint from "../util/mxPoint";
 import mxCellState from "../view/mxCellState";
 import { mxUtils } from "../util/mxUtils";
 import { mxClient } from "../mxClient";
-import { mxEvent } from "../util/mxEvent";
+import { mxEvent, IMxEventElement } from "../util/mxEvent";
+import mxSvgCanvas2D, { TCanvas2D } from "../util/mxSvgCanvas2D";
+import mxVmlCanvas2D from "../util/mxVmlCanvas2D";
+import mxText from "./mxText";
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
  * Copyright (c) 2006-2015, Gaudenz Alder
@@ -68,6 +71,8 @@ import { mxEvent } from "../util/mxEvent";
  * Constructs a new shape.
  */
 
+export type TElementNode = HTMLElement & SVGElement & SVGGraphicsElement;
+
 export default class mxShape {
 
 
@@ -119,7 +124,7 @@ export default class mxShape {
      *
      * Holds the outermost DOM node that represents this shape.
      */
-    node?: HTMLElement | SVGElement | null | null;
+    node: TElementNode | null;
 
     /**
      * Variable: state
@@ -141,14 +146,14 @@ export default class mxShape {
      * Contains the bounding box of the shape, that is, the smallest rectangle
      * that includes all pixels of the shape.
      */
-    boundingBox?: mxRectangle | null;
+    boundingBox: mxRectangle | null;
 
     /**
      * Variable: stencil
      *
      * Holds the <mxStencil> that defines the shape.
      */
-    stencil?: mxStencil;
+    stencil: mxStencil | null;
 
     /**
      * Variable: svgStrokeTolerance
@@ -220,24 +225,24 @@ export default class mxShape {
      */
     useSvgBoundingBox = false;
 
-    cursor?: string;
-    stroke?: string | null;
-    fill?: string | null;
-    gradient?: string | null;
-    direction?: string;
-    gradientDirection?: string;
+    cursor: string | null;
+    stroke: string | null;
+    fill: string | null;
+    gradient: string | null;
+    direction: string | null;
+    gradientDirection: string | null;
 
-    isDashed?: boolean;
-    isShadow?: boolean;
-    isRounded?: boolean;
-    glass?: boolean;
+    isDashed: boolean | null;
+    isShadow: boolean | null;
+    isRounded: boolean | null;
+    glass: boolean | null;
 
-    startSize?: number;
-    endSize?: number;
-    startArrow?: string;
-    endArrow?: string;
+    startSize: number | null;
+    endSize: number | null;
+    startArrow: string | null;
+    endArrow: string | null;
 
-    oldGradients?: IPlainObject | null;
+    oldGradients: IPlainObject | null;
 
 
     spacing = 0;
@@ -246,8 +251,8 @@ export default class mxShape {
     opacity = 100;
     fillOpacity = 100;
     strokeOpacity = 100;
-    flipH = false;
-    flipV = false;
+    flipH: boolean | null = false;
+    flipV: boolean | null = false;
 
     constructor(stencil?: mxStencil) {
         this.stencil = stencil;
@@ -318,7 +323,7 @@ export default class mxShape {
     getSvgScreenOffset = function () {
         var sw = this.stencil && this.stencil.strokewidth != 'inherit' ? Number(this.stencil.strokewidth) : this.strokewidth;
 
-        return (mxUtils.mod(Math.max(1, Math.round(sw * this.scale)), 2) == 1) ? 0.5 : 0;
+        return (mxUtils.mod(Math.max(1, Math.round(sw * this.scale)), 2) == 1) ? 0.5 : 0 as number;
     };
 
     /**
@@ -401,7 +406,7 @@ export default class mxShape {
      *
      * Creates and returns the SVG node(s) to represent this shape.
      */
-    redraw = () => {
+    redraw() {
         this.updateBoundsFromPoints();
 
         if (this.node) {
@@ -565,7 +570,7 @@ export default class mxShape {
 
             if (this.node != canvas.root) {
                 // Forces parsing in IE8 standards mode - slow! avoid
-                this.node!.insertAdjacentHTML('beforeend', canvas.root.outerHTML);
+                this.node!.insertAdjacentHTML('beforeend', (canvas.root as HTMLElement).outerHTML);
             }
 
             if (this.node!.nodeName == 'DIV' && document.documentMode == 8) {
@@ -625,7 +630,7 @@ export default class mxShape {
      * Creates and returns an <mxSvgCanvas2D> for rendering this shape.
      */
     createSvgCanvas = () => {
-        var canvas = new mxSvgCanvas2D(this.node, false);
+        var canvas = new mxSvgCanvas2D(this.node!, false);
         canvas.strokeTolerance = (this.pointerEvents) ? this.svgStrokeTolerance : 0;
         canvas.pointerEventsValue = this.svgPointerEvents;
         canvas.blockImagePointerEvents = mxClient.IS_FF;
@@ -658,7 +663,7 @@ export default class mxShape {
     createVmlCanvas = () => {
         // Workaround for VML rendering bug in IE8 standards mode
         var node = (document.documentMode == 8 && this.isParseVml()) ? this.createVmlGroup() : this.node;
-        var canvas = new mxVmlCanvas2D(node, false);
+        var canvas = new mxVmlCanvas2D(node as Node);
 
         if (node!.tagUrn != '') {
             var w = Math.max(1, Math.round(this.bounds!.width));
@@ -799,7 +804,7 @@ export default class mxShape {
             mxUtils.addTransparentBackgroundFilter(node);
         }
         else {
-            this.setTransparentBackgroundImage(node);
+            this.setTransparentBackgroundImage(node as SVGElement);
         }
     };
 
@@ -832,7 +837,7 @@ export default class mxShape {
      * Destroys the given canvas which was used for drawing. This implementation
      * increments the reference counts on all shared gradients used in the canvas.
      */
-    destroyCanvas = (canvas: mxSvgCanvas2D | mxVmlCanvas2D) => {
+    destroyCanvas = (canvas: TCanvas2D) => {
         // Manages reference counts
         if (canvas instanceof mxSvgCanvas2D) {
             // Increments ref counts
@@ -840,6 +845,7 @@ export default class mxShape {
                 var gradient = canvas.gradients[key];
 
                 if (gradient != null) {
+                    // @ts-ignore
                     gradient.mxRefCount = (gradient.mxRefCount || 0) + 1;
                 }
             }
@@ -854,7 +860,7 @@ export default class mxShape {
      * 
      * Generic rendering code.
      */
-    paint = (c: mxSvgCanvas2D | mxVmlCanvas2D) => {
+    paint = (c: TCanvas2D, update?: boolean) => {
         var strokeDrawn = false;
 
         if (c != null && this.outline) {
@@ -904,10 +910,10 @@ export default class mxShape {
                 this.node!.appendChild(bg);
             }
             else {
-                var rect = c.createRect('rect', bb.x / s, bb.y / s, bb.width / s, bb.height / s);
-                rect.appendChild(c.createTransparentFill());
+                var rect = (c as mxVmlCanvas2D).createRect('rect', bb.x / s, bb.y / s, bb.width / s, bb.height / s);
+                rect.appendChild((c as mxVmlCanvas2D).createTransparentFill());
                 rect.stroked = 'false';
-                c.root.appendChild(rect);
+                c.root!.appendChild(rect as Node);
             }
         }
 
@@ -952,7 +958,7 @@ export default class mxShape {
      * 
      * Sets the state of the canvas for drawing the shape.
      */
-    configureCanvas = (c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) => {
+    configureCanvas(c: TCanvas2D, x: number, y: number, w: number, h: number) {
         var dash = null;
 
         if (this.style != null) {
@@ -1008,7 +1014,7 @@ export default class mxShape {
         // move to canvas in a later version, so that the states are unscaled
         // and untranslated and do not need an update after zooming or panning.
         c.scale(this.scale);
-        c.rotate(this.getShapeRotation(), this.flipH, this.flipV, x + w / 2, y + h / 2);
+        c.rotate(this.getShapeRotation(), this.flipH!, this.flipV!, x + w / 2, y + h / 2);
     };
 
     /**
@@ -1191,7 +1197,7 @@ export default class mxShape {
      * 
      * Resets all styles.
      */
-    resetStyles = () => {
+    resetStyles() {
         this.initStyles();
 
         this.spacing = 0;
@@ -1246,7 +1252,7 @@ export default class mxShape {
      *
      * state - <mxCellState> of the corresponding cell.
      */
-    apply = (state: mxCellState) => {
+    apply(state: mxCellState) {
         this.state = state;
         this.style = state.style;
 
@@ -1499,7 +1505,7 @@ export default class mxShape {
      * 
      * Paints the line shape.
      */
-    setTransparentBackgroundImage = (node: HTMLElement | SVGElement | null) => {
+    setTransparentBackgroundImage = (node: SVGElement) => {
         node.style.backgroundImage = 'url(\'' + mxClient.imageBasePath + '/transparent.gif\')';
     };
 
@@ -1531,8 +1537,8 @@ export default class mxShape {
      * node associated with the shape using <mxEvent.release>.
      */
     destroy = () => {
-        if (this.node != null) {
-            mxEvent.release(this.node);
+        if (this.node) {
+            mxEvent.release(this.node as unknown as IMxEventElement);
 
             if (this.node.parentNode != null) {
                 this.node.parentNode.removeChild(this.node);

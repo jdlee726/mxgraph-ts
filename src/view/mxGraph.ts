@@ -19,6 +19,7 @@ import mxGraphModel, { TChange, mxChildChange, mxRootChange} from "../model/mxGr
 import mxGraphView from "./mxGraphView";
 import mxDictionary from "../util/mxDictionary";
 import mxCellOverlay from "./mxCellOverlay";
+import mxGraphSelectionModel from "./mxGraphSelectionModel";
 
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
@@ -2400,7 +2401,7 @@ export default class mxGraph extends mxEventSource {
      * cell - <mxCell> for which the initial editing value should be returned.
      * evt - Optional mouse event that triggered the editor.
      */
-    getEditingValue = (cell: mxCell, evt: MouseEvent) => {
+    getEditingValue = (cell: mxCell, evt: MouseEvent | null) => {
         return this.convertValueToString(cell);
     };
 
@@ -2432,7 +2433,7 @@ export default class mxGraph extends mxEventSource {
      * value - New label to be assigned.
      * evt - Optional event that triggered the change.
      */
-    labelChanged = (cell: mxCell, value: any, evt: mxEventObject) => {
+    labelChanged = (cell: mxCell, value: any, evt: MouseEvent | null) => {
         this.model.beginUpdate();
         try {
             var old = cell.value;

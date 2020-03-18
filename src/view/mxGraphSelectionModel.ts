@@ -7,6 +7,7 @@ import { mxLog } from "../util/mxLog";
 import mxEventObject from "../util/mxEventObject";
 import { mxEvent } from "../util/mxEvent";
 import { mxResources } from "../util/mxResources";
+import mxUndoableEdit from "../util/mxUndoableEdit";
 
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
@@ -368,6 +369,8 @@ export class mxSelectionChange {
     selectionModel: mxGraphSelectionModel;
     added: mxCell[] | null;
     removed: mxCell[] | null
+    undo = null;
+    redo = null;
     constructor(selectionModel: mxGraphSelectionModel, added: mxCell[] | null, removed: mxCell[] | null) {
         this.selectionModel = selectionModel;
         this.added = (added != null) ? added.slice() : null;
