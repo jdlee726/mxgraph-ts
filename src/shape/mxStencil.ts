@@ -468,7 +468,7 @@ export default class mxStencil extends mxShape {
      * bounds - <mxRectangle> that should contain the stencil.
      * direction - Optional direction of the shape to be darwn.
      */
-    computeAspect(shape: IPlainObject, x: number, y: number, w: number, h: number, direction: string) {
+    computeAspect(shape: IPlainObject, x: number, y: number, w: number, h: number, direction?: string) {
         var x0 = x;
         var y0 = y;
         var sx = w / this.w0;

@@ -4,6 +4,8 @@ import mxRectangle from "../util/mxRectangle";
 import mxShape from "../shape/mxShape";
 import mxCell from "../model/mxCell";
 import mxGraphView from "./mxGraphView";
+import mxText from "../shape/mxText";
+import mxDictionary from "../util/mxDictionary";
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
  * Copyright (c) 2006-2015, Gaudenz Alder

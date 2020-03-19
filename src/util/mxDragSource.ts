@@ -8,6 +8,8 @@ import { mxClient } from "../mxClient";
 import mxPoint from "./mxPoint";
 import { mxConstants } from "./mxConstants";
 import mxGuide from "./mxGuide";
+import mxCellHighlight from "../handler/mxCellHighlight";
+import mxCell from "../model/mxCell";
 
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
@@ -84,7 +86,7 @@ export default class mxDragSource {
      *
      * Holds the current drop target under the mouse.
      */
-    currentDropTarget = null;
+    currentDropTarget: mxCell | null = null;
 
     /**
      * Variable: currentPoint
@@ -105,7 +107,7 @@ export default class mxDragSource {
      *
      * Holds an <mxGuide> for the <currentGraph> if <dragPreview> is not null.
      */
-    currentHighlight = null;
+    currentHighlight: mxCellHighlight | null = null;
 
     /**
      * Variable: autoscroll
@@ -161,6 +163,7 @@ export default class mxDragSource {
     mouseMoveHandler: EventHandlerOrNull;
     mouseUpHandler: EventHandlerOrNull;
     eventSource: IMxEventElement | null;
+    previewOffset: mxPoint | null;
 
     constructor(element: IMxEventElement, dropHandler: EventHandlerOrNull) {
         this.element = element;
@@ -585,7 +588,7 @@ export default class mxDragSource {
      * Implements autoscroll, updates the <currentPoint>, highlights any drop
      * targets and updates the preview.
      */
-    dragOver(graph, evt) {
+    dragOver(graph: mxGraph, evt: MouseEvent) {
         var offset = mxUtils.getOffset(graph.container);
         var origin = mxUtils.getScrollOrigin(graph.container);
         var x = mxEvent.getClientX(evt) - offset.x + origin.x - graph.panDx;
@@ -617,8 +620,8 @@ export default class mxDragSource {
             // Grid and guides
             if (this.currentGuide != null && this.currentGuide.isEnabledForEvent(evt)) {
                 // LATER: HTML preview appears smaller than SVG preview
-                var w = parseInt(this.previewElement.style.width);
-                var h = parseInt(this.previewElement.style.height);
+                var w = parseInt(this.previewElement.style.width!);
+                var h = parseInt(this.previewElement.style.height!);
                 var bounds = new mxRectangle(0, 0, w, h);
                 var delta = new mxPoint(x, y);
                 delta = this.currentGuide.move(bounds, delta, gridEnabled, true);
@@ -657,8 +660,8 @@ export default class mxDragSource {
      * Returns the drop target for the given graph and coordinates. This
      * implementation uses <mxGraph.getCellAt>.
      */
-    drop(graph, evt, dropTarget, x, y) {
-        this.dropHandler.apply(this, arguments);
+    drop(graph: mxGraph, evt: MouseEvent, dropTarget: mxCell | null, x: number, y: number) {
+        this.dropHandler!.apply(this, [graph, evt, dropTarget, x, y]);
 
         // Had to move this to after the insert because it will
         // affect the scrollbars of the window in IE to try and

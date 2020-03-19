@@ -13,7 +13,7 @@ export interface IMxEventObject {
     f: EventHandlerNonNull;
 }
 
-export type EventHandlerOrNull = EventHandlerNonNull | null;
+export type EventHandlerOrNull =  EventHandlerNonNull | null;
 
 // export type IMxEventElement = Element & { mxListenerList: IMxEventObject[] | null } & { attachEvent: any, detachEvent: any}
 
@@ -208,7 +208,7 @@ export const mxEvent =
 	 * functions that take the trigger event as arguments and replace the
 	 * default behaviour.
 	 */
-	redirectMouseEvents: function (node: IMxEventElement, graph: mxGraph, state: mxCellState | ((evt: MouseEvent) => mxCellState), down: EventHandlerNonNull, move: EventHandlerNonNull, up: EventHandlerNonNull, dblClick: EventHandlerNonNull) {
+	redirectMouseEvents: function (node: IMxEventElement, graph: mxGraph, state: mxCellState | ((evt: MouseEvent) => mxCellState), down: EventHandlerOrNull = null, move: EventHandlerOrNull = null, up: EventHandlerOrNull = null, dblClick: EventHandlerOrNull = null) {
     var getState = function (evt: MouseEvent) {
             return (typeof (state) == 'function') ? state(evt) : state;
         };

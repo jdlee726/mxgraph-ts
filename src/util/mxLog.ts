@@ -3,7 +3,7 @@ import { IPlainObject } from "./mxConstants";
 import mxWindow from "./mxWindow";
 import { mxUtils } from "./mxUtils";
 import { mxEvent } from "./mxEvent";
-import mxEventSource, { mxEventHandler, TSender } from "./mxEventSource";
+import { TSender } from "./mxEventSource";
 import mxEventObject from "./mxEventObject";
 
 

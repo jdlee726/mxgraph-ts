@@ -7520,7 +7520,7 @@ export default class mxGraph extends mxEventSource {
      * 
      * cell - <mxCell> whose geometry should be returned.
      */
-    getCellGeometry = (cell: mxCell) => {
+    getCellGeometry = (cell: mxCell | null) => {
         return this.model.getGeometry(cell);
     };
 

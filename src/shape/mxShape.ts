@@ -118,7 +118,7 @@ export default class mxShape {
      *
      * Holds the array of <mxPoints> that specify the points of this shape.
      */
-    points?: mxPoint[];
+    points: mxPoint[] | null = null;
 
     /**
      * Variable: node

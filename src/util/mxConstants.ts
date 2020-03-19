@@ -4,6 +4,9 @@ import mxRectangle from "./mxRectangle";
 export interface IPlainObject {
   [key: string]: any;
 }
+
+export type HTMLElementMore =  HTMLElement & IPlainObject;
+
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
  * Copyright (c) 2006-2015, Gaudenz Alder

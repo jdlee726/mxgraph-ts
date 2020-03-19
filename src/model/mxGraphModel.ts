@@ -2132,8 +2132,10 @@ import mxUndoableEdit from "../util/mxUndoableEdit";
      model: mxGraphModel;
      root: mxCell | null;
      previous: mxCell | null;
+
      undo = null;
      redo = null;
+     child = null;
      constructor(model: mxGraphModel, root: mxCell | null) {
          this.model = model;
          this.root = root;
@@ -2170,8 +2172,11 @@ export class mxChildChange {
     previous: mxCell | null;
     index?: number;
     previousIndex?: number;
+
+    // 兼容 ts 的类型推断
     undo = null;
     redo = null;
+    cell = null;
     constructor(model: mxGraphModel, parent: mxCell | null, child: mxCell | null, index?: number) {
         this.model = model;
         this.parent = parent;
@@ -2266,13 +2271,14 @@ export class mxChildChange {
  */
 export class mxTerminalChange {
     model: mxGraphModel;
-     cell: mxCell | null;
-     previous: mxCell | null;
-     terminal: mxCell | null;
-     source: boolean;
+    cell: mxCell | null;
+    previous: mxCell | null;
+    terminal: mxCell | null;
+    source: boolean;
 
     undo = null;
     redo = null;
+    child = null;
     constructor(model: mxGraphModel, cell: mxCell | null, terminal: mxCell | null, source: boolean) {
         this.model = model;
         this.cell = cell;
@@ -2316,6 +2322,7 @@ export class mxValueChange {
 
     undo = null;
     redo = null;
+    child = null;
     constructor(model: mxGraphModel, cell: mxCell | null, value: any) {
         this.model = model;
         this.cell = cell;
@@ -2354,8 +2361,10 @@ export class mxStyleChange {
     cell: mxCell;
     style: string;
     previous: string;
+
     undo = null;
     redo = null;
+    child = null;
     constructor(model: mxGraphModel, cell: mxCell, style: string) {
         this.model = model;
         this.cell = cell;
@@ -2397,6 +2406,7 @@ export class mxGeometryChange {
 
     undo = null;
     redo = null;
+    child = null;
     constructor(model: mxGraphModel, cell: mxCell | null, geometry: mxGeometry) {
         this.model = model;
         this.cell = cell;
@@ -2434,8 +2444,10 @@ export class mxCollapseChange {
     cell: mxCell;
     collapsed: boolean;
     previous: boolean;
+
     undo = null;
     redo = null;
+    child = null;
     constructor(model: mxGraphModel, cell: mxCell, collapsed: boolean) {
         this.model = model;
         this.cell = cell;
@@ -2477,8 +2489,10 @@ export class mxVisibleChange {
     cell: mxCell;
     visible: boolean;
     previous: boolean;
+
     undo = null;
     redo = null;
+    child = null;
     constructor(model: mxGraphModel, cell: mxCell, visible: boolean) {
         this.model = model;
         this.cell = cell;
@@ -2540,8 +2554,10 @@ export class mxCellAttributeChange {
     attribute: string;
     value: any;
     previous: any;
+
     undo = null;
     redo = null;
+    child = null;
     constructor(cell: mxCell, attribute: string, value: any) {
         this.cell = cell;
         this.attribute = attribute;
