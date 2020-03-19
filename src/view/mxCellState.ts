@@ -6,6 +6,7 @@ import mxCell from "../model/mxCell";
 import mxGraphView from "./mxGraphView";
 import mxText from "../shape/mxText";
 import mxDictionary from "../util/mxDictionary";
+import mxImageShape from "../shape/mxImageShape";
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
  * Copyright (c) 2006-2015, Gaudenz Alder
@@ -42,14 +43,14 @@ export default class mxCellState extends mxRectangle {
      * 
      * Reference to the enclosing <mxGraphView>.
      */
-    view: mxGraphView;
+    view: mxGraphView | null;
 
     /**
      * Variable: cell
      *
      * Reference to the <mxCell> that is represented by this state.
      */
-    cell: mxCell;
+    cell: mxCell | null;
 
     /**
      * Variable: style
@@ -172,11 +173,11 @@ export default class mxCellState extends mxRectangle {
     control?: mxImageShape;
     overlays?: mxDictionary;
 
-    constructor(view: mxGraphView, cell: mxCell, style: IPlainObject) {
+    constructor(view: mxGraphView | null = null, cell: mxCell | null = null, style: IPlainObject = {}) {
         super();
         this.view = view;
         this.cell = cell;
-        this.style = (style != null) ? style : {};
+        this.style = style;
 
         this.origin = new mxPoint();
         this.absoluteOffset = new mxPoint();

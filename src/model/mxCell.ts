@@ -91,7 +91,7 @@ export default class mxCell {
      *
      * Holds the <mxGeometry>. Default is null.
      */
-    geometry?: mxGeometry | null;
+    geometry: mxGeometry | null;
 
     /**
      * Variable: style
@@ -276,7 +276,7 @@ export default class mxCell {
      *
      * Sets the <mxGeometry> to be used as the <geometry>.
      */
-    setGeometry = (geometry?: mxGeometry | null) => {
+    setGeometry = (geometry: mxGeometry | null = null) => {
         this.geometry = geometry;
     };
 

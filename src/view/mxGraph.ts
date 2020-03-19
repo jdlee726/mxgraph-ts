@@ -6550,7 +6550,7 @@ export default class mxGraph extends mxEventSource {
      * cell - <mxCell> that represents the root.
      */
     getTranslateForRoot = (cell: mxCell) => {
-        return null;
+        return null as unknown as  mxPoint;
     };
 
     /**

@@ -50,7 +50,7 @@ export default class mxCurrentRootChange {
     execute = () => {
         var tmp = this.view.currentRoot;
         this.view.currentRoot = this.previous;
-        this.previous = tmp;
+        this.previous = tmp!;
 
         var translate = this.view.graph.getTranslateForRoot(this.view.currentRoot);
 
