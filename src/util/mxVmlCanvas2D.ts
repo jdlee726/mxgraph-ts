@@ -604,7 +604,7 @@ export default class mxVmlCanvas2D extends mxAbstractCanvas2D {
      * text and html for HTML markup. Clipping, text background and border are not
      * supported for plain text in VML.
      */
-    text(x: number, y: number, w: number, h: number, str: string, align: string | null, valign: string | null, wrap: boolean | null, format: string, overflow: string | null, clip: boolean | null, rotation: number | null, dir: string | null) {
+    text(x: number, y: number, w: number, h: number, str: string, align: string | null, valign: string | null, wrap: boolean | null, format: string, overflow: string | null, clip: boolean | null, rotation: number | null, dir: string | null = null) {
         if (this.textEnabled && str != null) {
             var s = this.state;
 

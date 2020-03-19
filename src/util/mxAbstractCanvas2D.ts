@@ -469,7 +469,7 @@ export default class mxAbstractCanvas2D {
      * 
      * Sets the current font style.
      */
-    setFontStyle = (value: string | number | null) => {
+    setFontStyle = (value: number | null) => {
         if (value == null) {
             value = 0;
         }

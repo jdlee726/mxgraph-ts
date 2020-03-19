@@ -8,6 +8,7 @@ import { mxEvent, IMxEventElement } from "../util/mxEvent";
 import mxSvgCanvas2D, { TCanvas2D } from "../util/mxSvgCanvas2D";
 import mxVmlCanvas2D from "../util/mxVmlCanvas2D";
 import mxText from "./mxText";
+import mxStencil from "./mxStencil";
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
  * Copyright (c) 2006-2015, Gaudenz Alder
@@ -71,7 +72,7 @@ import mxText from "./mxText";
  * Constructs a new shape.
  */
 
-export type TElementNode = HTMLElement & SVGElement & SVGGraphicsElement;
+export type TElementNode = HTMLElement & SVGElement & SVGGraphicsElement & Window;
 
 export default class mxShape {
 
@@ -138,7 +139,7 @@ export default class mxShape {
      *
      * Optional reference to the style of the corresponding <mxCellState>.
      */
-    style?: IPlainObject;
+    style: IPlainObject | null;
 
     /**
      * Variable: boundingBox
@@ -232,10 +233,10 @@ export default class mxShape {
     direction: string | null;
     gradientDirection: string | null;
 
-    isDashed: boolean | null;
-    isShadow: boolean | null;
-    isRounded: boolean | null;
-    glass: boolean | null;
+    isDashed: boolean = false;
+    isShadow: boolean = false;
+    isRounded: boolean = false;
+    glass: boolean = false;
 
     startSize: number | null;
     endSize: number | null;
@@ -246,7 +247,7 @@ export default class mxShape {
 
 
     spacing = 0;
-    strokewidth = 1;
+    strokewidth: number | string = 1;
     rotation = 0;
     opacity = 100;
     fillOpacity = 100;
@@ -254,7 +255,7 @@ export default class mxShape {
     flipH: boolean | null = false;
     flipV: boolean | null = false;
 
-    constructor(stencil?: mxStencil) {
+    constructor(stencil: mxStencil | null = null) {
         this.stencil = stencil;
         this.initStyles();
     }
@@ -269,7 +270,7 @@ export default class mxShape {
      *
      * container - DOM node that will contain the shape.
      */
-    init = (container?: HTMLElement | SVGElement | null) => {
+    init(container: TElementNode | null = null) {
         if (this.node) {
             this.node = this.create(container);
 
@@ -284,7 +285,7 @@ export default class mxShape {
      *
      * Sets the styles to their default values.
      */
-    initStyles = (container?: HTMLElement) => {
+    initStyles(container: TElementNode | null = null) {
         this.strokewidth = 1;
         this.rotation = 0;
         this.opacity = 100;
@@ -301,7 +302,7 @@ export default class mxShape {
      * is only needed in IE8 and only if the shape contains VML markup. This method
      * returns true.
      */
-    isParseVml = function () {
+    isParseVml() {
         return true;
     };
 
@@ -311,7 +312,7 @@ export default class mxShape {
      * Returns true if HTML is allowed for this shape. This implementation always
      * returns false.
      */
-    isHtmlAllowed = function () {
+    isHtmlAllowed() {
         return false;
     };
 
@@ -320,8 +321,8 @@ export default class mxShape {
      * 
      * Returns 0, or 0.5 if <strokewidth> % 2 == 1.
      */
-    getSvgScreenOffset = function () {
-        var sw = this.stencil && this.stencil.strokewidth != 'inherit' ? Number(this.stencil.strokewidth) : this.strokewidth;
+    getSvgScreenOffset() {
+        var sw = this.stencil && this.stencil.strokewidth != 'inherit' ? Number(this.stencil.strokewidth) : +this.strokewidth;
 
         return (mxUtils.mod(Math.max(1, Math.round(sw * this.scale)), 2) == 1) ? 0.5 : 0 as number;
     };
@@ -338,7 +339,7 @@ export default class mxShape {
      *
      * container - DOM node that will contain the shape.
      */
-    create = function (container?: HTMLElement | SVGElement | null) {
+    create(container: TElementNode | null = null) {
         var node = null;
 
         // @ts-ignore
@@ -353,7 +354,7 @@ export default class mxShape {
             node = this.createVml(container);
         }
 
-        return node;
+        return node as TElementNode;
     };
 
     /**
@@ -361,7 +362,7 @@ export default class mxShape {
      *
      * Creates and returns the SVG node(s) to represent this shape.
      */
-    createSvg = () => {
+    createSvg(container: TElementNode | null = null) {
         return document.createElementNS(mxConstants.NS_SVG, 'g');
     };
 
@@ -370,7 +371,7 @@ export default class mxShape {
      *
      * Creates and returns the VML node to represent this shape.
      */
-    createVml = () => {
+    createVml(container: TElementNode | null = null) {
         var node = document.createElement(mxClient.VML_PREFIX + ':group');
         node.style.position = 'absolute';
 
@@ -384,7 +385,7 @@ export default class mxShape {
      * this shape. This implementation falls back to <createVml>
      * so that the HTML creation is optional.
      */
-    createHtml = () => {
+    createHtml(container: TElementNode | null = null) {
         var node = document.createElement('div');
         node.style.position = 'absolute';
 
@@ -397,7 +398,7 @@ export default class mxShape {
      * Reconfigures this shape. This will update the colors etc in
      * addition to the bounds or points.
      */
-    reconfigure = () => {
+    reconfigure() {
         this.redraw();
     };
 
@@ -436,7 +437,7 @@ export default class mxShape {
      * 
      * Removes all child nodes and resets all CSS.
      */
-    clear = () => {
+    clear() {
         if (!this.node) return;
         // @ts-ignore
         if (this.node.ownerSVGElement != null) {
@@ -456,7 +457,7 @@ export default class mxShape {
      * 
      * Updates the bounds based on the points.
      */
-    updateBoundsFromPoints = () => {
+    updateBoundsFromPoints() {
         var pts = this.points;
 
         if (pts != null && pts.length > 0 && pts[0] != null) {
@@ -477,7 +478,7 @@ export default class mxShape {
      * given scaled and translated bounds of the shape. This method should not
      * change the rectangle in-place. This implementation returns the given rect.
      */
-    getLabelBounds = (rect: mxRectangle) => {
+    getLabelBounds(rect: mxRectangle) {
         var d = mxUtils.getValue(this.style, mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
         var bounds = rect;
 
@@ -524,7 +525,7 @@ export default class mxShape {
      * computing the label bounds as an <mxRectangle>, where the bottom and right
      * margin are defined in the width and height of the rectangle, respectively.
      */
-    getLabelMargins = function (rect: mxRectangle) {
+    getLabelMargins(rect: mxRectangle) {
         return null;
     };
 
@@ -533,7 +534,7 @@ export default class mxShape {
      * 
      * Returns true if the bounds are not null and all of its variables are numeric.
      */
-    checkBounds = function () {
+    checkBounds() {
         return (!isNaN(this.scale) && isFinite(this.scale) && this.scale > 0 &&
             this.bounds != null && !isNaN(this.bounds.x) && !isNaN(this.bounds.y) &&
             !isNaN(this.bounds.width) && !isNaN(this.bounds.height) &&
@@ -545,7 +546,7 @@ export default class mxShape {
      *
      * Returns the temporary element used for rendering in IE8 standards mode.
      */
-    createVmlGroup = () => {
+    createVmlGroup() {
         var node = document.createElement(mxClient.VML_PREFIX + ':group');
         node.style.position = 'absolute';
         node.style.width = this.node!.style.width;
@@ -559,7 +560,7 @@ export default class mxShape {
      *
      * Updates the SVG or VML shape.
      */
-    redrawShape = () => {
+    redrawShape() {
         var canvas = this.createCanvas();
 
         if (canvas != null) {
@@ -592,7 +593,7 @@ export default class mxShape {
      * 
      * Creates a new canvas for drawing this shape. May return null.
      */
-    createCanvas = () => {
+    createCanvas() {
         var canvas = null;
 
         // LATER: Check if reusing existing DOM nodes improves performance
@@ -606,7 +607,7 @@ export default class mxShape {
         }
 
         if (canvas != null && this.outline) {
-            canvas.setStrokeWidth(this.strokewidth);
+            canvas.setStrokeWidth(+this.strokewidth);
             canvas.setStrokeColor(this.stroke);
 
             if (this.isDashed != null) {
@@ -629,9 +630,9 @@ export default class mxShape {
      * 
      * Creates and returns an <mxSvgCanvas2D> for rendering this shape.
      */
-    createSvgCanvas = () => {
+    createSvgCanvas() {
         var canvas = new mxSvgCanvas2D(this.node!, false);
-        canvas.strokeTolerance = (this.pointerEvents) ? this.svgStrokeTolerance : 0;
+        canvas.strokeTolerance = this.pointerEvents ? this.svgStrokeTolerance : 0;
         canvas.pointerEventsValue = this.svgPointerEvents;
         canvas.blockImagePointerEvents = mxClient.IS_FF;
         var off = this.getSvgScreenOffset();
@@ -647,8 +648,8 @@ export default class mxShape {
 
         if (!this.antiAlias) {
             // Rounds all numbers in the SVG output to integers
-            canvas.format = function (value: string) {
-                return Math.round(parseFloat(value));
+            canvas.format = function (value: string | number){
+                return Math.round(parseFloat('' + value));
             };
         }
 
@@ -660,7 +661,7 @@ export default class mxShape {
      * 
      * Creates and returns an <mxVmlCanvas2D> for rendering this shape.
      */
-    createVmlCanvas = () => {
+    createVmlCanvas() {
         // Workaround for VML rendering bug in IE8 standards mode
         var node = (document.documentMode == 8 && this.isParseVml()) ? this.createVmlGroup() : this.node;
         var canvas = new mxVmlCanvas2D(node as Node);
@@ -669,7 +670,7 @@ export default class mxShape {
             var w = Math.max(1, Math.round(this.bounds!.width));
             var h = Math.max(1, Math.round(this.bounds!.height));
             // @ts-ignore
-            node!.coordsize = (w * this.vmlScale) + ',' + (h * this.vmlScale);
+            node!.coordsize(w * this.vmlScale) + ',' + (h * this.vmlScale);
             canvas.scale(this.vmlScale);
             canvas.vmlScale = this.vmlScale;
         }
@@ -686,7 +687,7 @@ export default class mxShape {
      * 
      * Updates the bounds of the VML container.
      */
-    updateVmlContainer = () => {
+    updateVmlContainer() {
         if (this.node && this.bounds) {
             this.node.style.left = Math.round(this.bounds.x) + 'px';
             this.node.style.top = Math.round(this.bounds.y) + 'px';
@@ -703,7 +704,7 @@ export default class mxShape {
      *
      * Allow optimization by replacing VML with HTML.
      */
-    redrawHtmlShape = () => {
+    redrawHtmlShape() {
         // LATER: Refactor methods
         this.updateHtmlBounds(this.node);
         this.updateHtmlFilters(this.node);
@@ -715,7 +716,7 @@ export default class mxShape {
      *
      * Allow optimization by replacing VML with HTML.
      */
-    updateHtmlFilters = (node?: HTMLElement | SVGElement | null) => {
+    updateHtmlFilters(node: TElementNode | null = null) {
         var f = '';
 
         if (this.opacity < 100) {
@@ -770,7 +771,7 @@ export default class mxShape {
      *
      * Allow optimization by replacing VML with HTML.
      */
-    updateHtmlColors = (node?: HTMLElement | SVGElement | null) => {
+    updateHtmlColors(node?: HTMLElement | SVGElement | null) {
         let color = this.stroke;
 
         if(!node) return;
@@ -785,7 +786,7 @@ export default class mxShape {
                 node.style.borderStyle = 'solid';
             }
 
-            node.style.borderWidth = Math.max(1, Math.ceil(this.strokewidth * this.scale)) + 'px';
+            node.style.borderWidth = Math.max(1, Math.ceil(+this.strokewidth * this.scale)) + 'px';
         }
         else {
             node.style.borderWidth = '0px';
@@ -813,10 +814,10 @@ export default class mxShape {
      *
      * Allow optimization by replacing VML with HTML.
      */
-    updateHtmlBounds = (node?: HTMLElement | SVGElement | null) => {
+    updateHtmlBounds(node?: HTMLElement | SVGElement | null) {
         if(!node) return;
 
-        var sw = (document.documentMode >= 9) ? 0 : Math.ceil(this.strokewidth * this.scale);
+        var sw = (document.documentMode >= 9) ? 0 : Math.ceil(+this.strokewidth * this.scale);
         node.style.borderWidth = Math.max(1, sw) + 'px';
         node.style.overflow = 'hidden';
 
@@ -837,7 +838,7 @@ export default class mxShape {
      * Destroys the given canvas which was used for drawing. This implementation
      * increments the reference counts on all shared gradients used in the canvas.
      */
-    destroyCanvas = (canvas: TCanvas2D) => {
+    destroyCanvas(canvas: TCanvas2D) {
         // Manages reference counts
         if (canvas instanceof mxSvgCanvas2D) {
             // Increments ref counts
@@ -846,7 +847,7 @@ export default class mxShape {
 
                 if (gradient != null) {
                     // @ts-ignore
-                    gradient.mxRefCount = (gradient.mxRefCount || 0) + 1;
+                    gradient.mxRefCount(gradient.mxRefCount || 0) + 1;
                 }
             }
 
@@ -860,20 +861,20 @@ export default class mxShape {
      * 
      * Generic rendering code.
      */
-    paint = (c: TCanvas2D, update?: boolean) => {
+    paint(c: TCanvas2D, update?: boolean) {
         var strokeDrawn = false;
 
         if (c != null && this.outline) {
             var stroke = c.stroke;
 
-            c.stroke = function () {
+            c.stroke = function() {
                 strokeDrawn = true;
                 stroke.apply(this, arguments);
             };
 
             var fillAndStroke = c.fillAndStroke;
 
-            c.fillAndStroke = function () {
+            c.fillAndStroke = function() {
                 strokeDrawn = true;
                 fillAndStroke.apply(this, arguments);
             };
@@ -922,7 +923,7 @@ export default class mxShape {
         }
         else {
             // Stencils have separate strokewidth
-            c.setStrokeWidth(this.strokewidth);
+            c.setStrokeWidth(+this.strokewidth);
 
             if (this.points != null) {
                 // Paints edge shape
@@ -1000,7 +1001,7 @@ export default class mxShape {
      * 
      * Returns the bounding box for the gradient box for this shape.
      */
-    getGradientBounds = (c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) => {
+    getGradientBounds(c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) {
         return new mxRectangle(x, y, w, h);
     };
 
@@ -1009,7 +1010,7 @@ export default class mxShape {
      * 
      * Sets the scale and rotation on the given canvas.
      */
-    updateTransform = (c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) => {
+    updateTransform(c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) {
         // NOTE: Currently, scale is implemented in state and canvas. This will
         // move to canvas in a later version, so that the states are unscaled
         // and untranslated and do not need an update after zooming or panning.
@@ -1022,7 +1023,7 @@ export default class mxShape {
      * 
      * Paints the vertex shape.
      */
-    paintVertexShape = (c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) => {
+    paintVertexShape(c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) {
         this.paintBackground(c, x, y, w, h);
 
         if (!this.outline || this.style == null || mxUtils.getValue(
@@ -1037,28 +1038,28 @@ export default class mxShape {
      * 
      * Hook for subclassers. This implementation is empty.
      */
-    paintBackground = (c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) => { };
+    paintBackground(c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) { };
 
     /**
      * Function: paintForeground
      * 
      * Hook for subclassers. This implementation is empty.
      */
-    paintForeground = (c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) => { };
+    paintForeground(c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) { };
 
     /**
      * Function: paintEdgeShape
      * 
      * Hook for subclassers. This implementation is empty.
      */
-    paintEdgeShape = (c: mxSvgCanvas2D | mxVmlCanvas2D, pts: mxPoint[]) => { };
+    paintEdgeShape(c: mxSvgCanvas2D | mxVmlCanvas2D, pts: mxPoint[]) { };
 
     /**
      * Function: getArcSize
      * 
      * Returns the arc size for the given dimension.
      */
-    getArcSize = (w: number, h: number) => {
+    getArcSize(w: number, h: number) {
         var r = 0;
 
         if (mxUtils.getValue(this.style, mxConstants.STYLE_ABSOLUTE_ARCSIZE, 0) == '1') {
@@ -1079,8 +1080,8 @@ export default class mxShape {
      * 
      * Paints the glass gradient effect.
      */
-    paintGlassEffect = (c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number, arc: number) => {
-        var sw = Math.ceil(this.strokewidth / 2);
+    paintGlassEffect(c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number, arc: number) {
+        var sw = Math.ceil(+this.strokewidth / 2);
         var size = 0.4;
 
         c.setGradient('#ffffff', '#ffffff', x, y, w, h * 0.6, 'south', 0.9, 0.1);
@@ -1111,7 +1112,7 @@ export default class mxShape {
      * 
      * Paints the given points with rounded corners.
      */
-    addPoints = (c: mxSvgCanvas2D | mxVmlCanvas2D, pts: mxPoint[], rounded: boolean, arcSize: number, close: boolean, exclude: number[], initialMove = true) => {
+    addPoints(c: TCanvas2D, pts: mxPoint[], rounded: boolean, arcSize: number, close: boolean, exclude: number[] | null = null, initialMove = true) {
         if (pts != null && pts.length > 0) {
             var pe = pts[pts.length - 1];
 
@@ -1315,7 +1316,7 @@ export default class mxShape {
      *
      * cursor - The cursor to be used.
      */
-    setCursor = (cursor?: string) => {
+    setCursor(cursor?: string) {
         if (cursor == null) {
             cursor = '';
         }
@@ -1332,7 +1333,7 @@ export default class mxShape {
      * 
      * Returns the current cursor.
      */
-    getCursor = () => {
+    getCursor() {
         return this.cursor;
     };
 
@@ -1341,7 +1342,7 @@ export default class mxShape {
      * 
      * Hook for subclassers.
      */
-    isRoundable = () => {
+    isRoundable() {
         return false;
     };
 
@@ -1351,7 +1352,7 @@ export default class mxShape {
      * Updates the <boundingBox> for this shape using <createBoundingBox> and
      * <augmentBoundingBox> and stores the result in <boundingBox>.
      */
-    updateBoundingBox = () => {
+    updateBoundingBox() {
         // Tries to get bounding box from SVG subsystem
         // LATER: Use getBoundingClientRect for fallback in VML
         // @ts-ignore
@@ -1364,7 +1365,7 @@ export default class mxShape {
                     this.boundingBox = new mxRectangle(b.x, b.y, b.width, b.height);
 
                     // Adds strokeWidth
-                    this.boundingBox.grow(this.strokewidth * this.scale / 2);
+                    this.boundingBox.grow(+this.strokewidth * this.scale / 2);
 
                     return;
                 }
@@ -1396,7 +1397,7 @@ export default class mxShape {
      * Returns a new rectangle that represents the bounding box of the bare shape
      * with no shadows or strokewidths.
      */
-    createBoundingBox = () => {
+    createBoundingBox() {
         var bb = this.bounds!.clone();
 
         if ((this.stencil != null && (this.direction == mxConstants.DIRECTION_NORTH ||
@@ -1412,14 +1413,14 @@ export default class mxShape {
      *
      * Augments the bounding box with the strokewidth and shadow offsets.
      */
-    augmentBoundingBox = (bbox: mxRectangle) => {
+    augmentBoundingBox(bbox: mxRectangle) {
         if (this.isShadow) {
             bbox.width += Math.ceil(mxConstants.SHADOW_OFFSET_X * this.scale);
             bbox.height += Math.ceil(mxConstants.SHADOW_OFFSET_Y * this.scale);
         }
 
         // Adds strokeWidth
-        bbox.grow(this.strokewidth * this.scale / 2);
+        bbox.grow(+this.strokewidth * this.scale / 2);
     };
 
     /**
@@ -1427,7 +1428,7 @@ export default class mxShape {
      * 
      * Returns true if the bounds should be inverted.
      */
-    isPaintBoundsInverted = function () {
+    isPaintBoundsInverted() {
         // Stencil implements inversion via aspect
         return this.stencil == null && (this.direction == mxConstants.DIRECTION_NORTH ||
             this.direction == mxConstants.DIRECTION_SOUTH);
@@ -1438,7 +1439,7 @@ export default class mxShape {
      * 
      * Returns the rotation from the style.
      */
-    getRotation = function () {
+    getRotation() {
         return (this.rotation != null) ? this.rotation : 0;
     };
 
@@ -1447,7 +1448,7 @@ export default class mxShape {
      * 
      * Returns the rotation for the text label.
      */
-    getTextRotation = () => {
+    getTextRotation() {
         var rot = this.getRotation();
 
         if (mxUtils.getValue(this.style, mxConstants.STYLE_HORIZONTAL, 1) != 1) {
@@ -1462,7 +1463,7 @@ export default class mxShape {
      * 
      * Returns the actual rotation of the shape.
      */
-    getShapeRotation = () => {
+    getShapeRotation() {
         var rot = this.getRotation();
 
         if (this.direction != null) {
@@ -1485,7 +1486,7 @@ export default class mxShape {
      * 
      * Adds a transparent rectangle that catches all events.
      */
-    createTransparentSvgRectangle = (x: number, y: number, w: number, h: number) => {
+    createTransparentSvgRectangle(x: number, y: number, w: number, h: number) {
         var rect = document.createElementNS(mxConstants.NS_SVG, 'rect');
         rect.setAttribute('x', String(x));
         rect.setAttribute('y', String(y));
@@ -1505,7 +1506,7 @@ export default class mxShape {
      * 
      * Paints the line shape.
      */
-    setTransparentBackgroundImage = (node: SVGElement) => {
+    setTransparentBackgroundImage(node: SVGElement) {
         node.style.backgroundImage = 'url(\'' + mxClient.imageBasePath + '/transparent.gif\')';
     };
 
@@ -1514,13 +1515,13 @@ export default class mxShape {
      * 
      * Paints the line shape.
      */
-    releaseSvgGradients = (grads?: IPlainObject) => {
+    releaseSvgGradients(grads?: IPlainObject) {
         if (grads != null) {
             for (var key in grads) {
                 var gradient = grads[key];
 
                 if (gradient != null) {
-                    gradient.mxRefCount = (gradient.mxRefCount || 0) - 1;
+                    gradient.mxRefCount(gradient.mxRefCount || 0) - 1;
 
                     if (gradient.mxRefCount == 0 && gradient.parentNode != null) {
                         gradient.parentNode.removeChild(gradient);
@@ -1536,7 +1537,7 @@ export default class mxShape {
      * Destroys the shape by removing it from the DOM and releasing the DOM
      * node associated with the shape using <mxEvent.release>.
      */
-    destroy = () => {
+    destroy() {
         if (this.node) {
             mxEvent.release(this.node as unknown as IMxEventElement);
 

@@ -4055,7 +4055,7 @@ export default class mxGraph extends mxEventSource {
      * keepPosition - Optional boolean indicating if the position of the cells should
      * be updated to reflect the lost parent cell. Default is false.
      */
-    cloneCells = (cells: mxCell[], allowInvalidEdges = true, mapping?: Object, keepPosition = false) => {
+    cloneCells = (cells: mxCell[] | null, allowInvalidEdges = true, mapping?: Object, keepPosition = false) => {
         allowInvalidEdges = (allowInvalidEdges != null) ? allowInvalidEdges : true;
         var clones = null;
 
@@ -4474,7 +4474,7 @@ export default class mxGraph extends mxEventSource {
      * includeEdges - Optional boolean which specifies if all connected edges
      * should be removed as well. Default is true.
      */
-    removeCells = (cells: mxCell[], includeEdges = true) => {
+    removeCells = (cells: mxCell[] | null, includeEdges = true) => {
 
         if (cells == null) {
             cells = this.getDeletableCells(this.getSelectionCells());
@@ -4487,7 +4487,7 @@ export default class mxGraph extends mxEventSource {
             cells = this.getDeletableCells(this.addAllEdges(cells));
         }
         else {
-            cells = cells.slice();
+            cells = cells!.slice();
 
             // Removes edges that are currently not
             // visible as those cannot be updated
@@ -5534,7 +5534,7 @@ export default class mxGraph extends mxEventSource {
      * evt - Mouseevent that triggered the invocation.
      * mapping - Optional mapping for existing clones.
      */
-    importCells = (cells: mxCell[], dx = 0, dy = 0, target?: mxCell, evt?: MouseEvent, mapping?: Object) => {
+    importCells = (cells: mxCell[], dx = 0, dy = 0, target: mxCell | null = null, evt?: MouseEvent, mapping?: Object) => {
         return this.moveCells(cells, dx, dy, true, target, evt, mapping);
     };
 
@@ -6937,7 +6937,7 @@ export default class mxGraph extends mxEventSource {
      * 
      * Snaps the given delta with the given scaled bounds.
      */
-    snapDelta = (delta: mxRectangle, bounds: mxRectangle, ignoreGrid?: boolean, ignoreHorizontal?: boolean, ignoreVertical?: boolean) => {
+    snapDelta = (delta: mxPoint, bounds: mxRectangle, ignoreGrid?: boolean, ignoreHorizontal?: boolean, ignoreVertical?: boolean) => {
         var t = this.view.translate;
         var s = this.view.scale;
 
