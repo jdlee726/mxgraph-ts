@@ -656,7 +656,7 @@ export default class mxText extends mxShape {
         c.setFontBackgroundColor(this.background);
         c.setFontBorderColor(this.border);
         c.setFontFamily(this.family!);
-        c.setFontSize('' + this.size);
+        c.setFontSize(this.size!);
         c.setFontStyle(this.fontStyle!);
     };
 

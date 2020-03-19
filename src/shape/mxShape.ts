@@ -247,13 +247,23 @@ export default class mxShape {
 
 
     spacing = 0;
-    strokewidth: number | string = 1;
+    strokewidth: number = 1;
     rotation = 0;
     opacity = 100;
     fillOpacity = 100;
     strokeOpacity = 100;
     flipH: boolean | null = false;
     flipV: boolean | null = false;
+
+    indicatorShape: (new () => mxShape) | null;
+    indicatorColor: string | null;
+    indicatorStrokeColor: string | null;
+    indicatorGradientColor: string | null;
+    indicatorDirection: string | null;
+    image: string | null;
+    indicatorImage: string | null;
+
+
 
     constructor(stencil: mxStencil | null = null) {
         this.stencil = stencil;
@@ -322,7 +332,7 @@ export default class mxShape {
      * Returns 0, or 0.5 if <strokewidth> % 2 == 1.
      */
     getSvgScreenOffset() {
-        var sw = this.stencil && this.stencil.strokewidth != 'inherit' ? Number(this.stencil.strokewidth) : +this.strokewidth;
+        var sw = this.stencil && this.stencil.strokewidth as any != 'inherit' ? (this.stencil.strokewidth) : +this.strokewidth;
 
         return (mxUtils.mod(Math.max(1, Math.round(sw * this.scale)), 2) == 1) ? 0.5 : 0 as number;
     };
@@ -1001,7 +1011,7 @@ export default class mxShape {
      * 
      * Returns the bounding box for the gradient box for this shape.
      */
-    getGradientBounds(c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) {
+    getGradientBounds(c: TCanvas2D, x: number, y: number, w: number, h: number) {
         return new mxRectangle(x, y, w, h);
     };
 
@@ -1010,7 +1020,7 @@ export default class mxShape {
      * 
      * Sets the scale and rotation on the given canvas.
      */
-    updateTransform(c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) {
+    updateTransform(c: TCanvas2D, x: number, y: number, w: number, h: number) {
         // NOTE: Currently, scale is implemented in state and canvas. This will
         // move to canvas in a later version, so that the states are unscaled
         // and untranslated and do not need an update after zooming or panning.
@@ -1023,7 +1033,7 @@ export default class mxShape {
      * 
      * Paints the vertex shape.
      */
-    paintVertexShape(c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) {
+    paintVertexShape(c: TCanvas2D, x: number, y: number, w: number, h: number) {
         this.paintBackground(c, x, y, w, h);
 
         if (!this.outline || this.style == null || mxUtils.getValue(
@@ -1038,28 +1048,28 @@ export default class mxShape {
      * 
      * Hook for subclassers. This implementation is empty.
      */
-    paintBackground(c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) { };
+    paintBackground(c: TCanvas2D, x: number, y: number, w: number, h: number) { };
 
     /**
      * Function: paintForeground
      * 
      * Hook for subclassers. This implementation is empty.
      */
-    paintForeground(c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number) { };
+    paintForeground(c: TCanvas2D, x: number, y: number, w: number, h: number) { };
 
     /**
      * Function: paintEdgeShape
      * 
      * Hook for subclassers. This implementation is empty.
      */
-    paintEdgeShape(c: mxSvgCanvas2D | mxVmlCanvas2D, pts: mxPoint[]) { };
+    paintEdgeShape(c: TCanvas2D, pts: mxPoint[]) { };
 
     /**
      * Function: getArcSize
      * 
      * Returns the arc size for the given dimension.
      */
-    getArcSize(w: number, h: number) {
+    getArcSize(w: number, h: number, start?: number) {
         var r = 0;
 
         if (mxUtils.getValue(this.style, mxConstants.STYLE_ABSOLUTE_ARCSIZE, 0) == '1') {
@@ -1080,7 +1090,7 @@ export default class mxShape {
      * 
      * Paints the glass gradient effect.
      */
-    paintGlassEffect(c: mxSvgCanvas2D | mxVmlCanvas2D, x: number, y: number, w: number, h: number, arc: number) {
+    paintGlassEffect(c: TCanvas2D, x: number, y: number, w: number, h: number, arc: number) {
         var sw = Math.ceil(+this.strokewidth / 2);
         var size = 0.4;
 
@@ -1342,7 +1352,7 @@ export default class mxShape {
      * 
      * Hook for subclassers.
      */
-    isRoundable() {
+    isRoundable(c: TCanvas2D, x: number, y: number, w: number, h: number) {
         return false;
     };
 

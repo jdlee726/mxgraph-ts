@@ -71,7 +71,7 @@ export default class mxPolyline extends mxShape {
      * 
      * Paints the line shape.
      */
-    paintEdgeShape(c: mxSvgCanvas2D, pts: mxPoint[]) {
+    paintEdgeShape(c: TCanvas2D, pts: mxPoint[]) {
         var prev = c.pointerEventsValue;
         c.pointerEventsValue = 'stroke';
 

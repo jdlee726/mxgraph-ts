@@ -1,9 +1,10 @@
 import mxAbstractCanvas2D from "./mxAbstractCanvas2D";
 import { mxClient } from "../mxClient";
 import { mxUtils } from "./mxUtils";
-import { mxConstants } from "./mxConstants";
+import { mxConstants, IPlainObject } from "./mxConstants";
 import mxRectangle from "./mxRectangle";
 import mxVmlCanvas2D from "./mxVmlCanvas2D";
+import mxXmlCanvas2D from "./mxXmlCanvas2D";
 
 /**
  * Copyright (c) 2006-2015, JGraph Ltd
@@ -1738,4 +1739,4 @@ export default class mxSvgCanvas2D extends mxAbstractCanvas2D {
 
 
 
-export type TCanvas2D =  mxSvgCanvas2D | mxVmlCanvas2D;
+export type TCanvas2D =  (mxSvgCanvas2D | mxVmlCanvas2D | mxXmlCanvas2D) & IPlainObject;

@@ -412,7 +412,7 @@ export default class mxStencil extends mxShape {
         var direction = mxUtils.getValue(shape.style, mxConstants.STYLE_DIRECTION, null);
         var aspect = this.computeAspect(shape.style!, x, y, w, h, direction);
         var minScale = Math.min(aspect.width, aspect.height);
-        var sw = (this.strokewidth == 'inherit') ?
+        var sw = (this.strokewidth as any == 'inherit') ?
             Number(mxUtils.getNumber(shape.style, mxConstants.STYLE_STROKEWIDTH, 1)) :
             Number(this.strokewidth) * minScale;
         canvas.setStrokeWidth(sw);
@@ -775,7 +775,7 @@ export default class mxStencil extends mxShape {
                 canvas.setFontFamily(node.getAttribute('family')!);
             }
             else if (name == 'fontsize') {
-                canvas.setFontSize('' + Number(node.getAttribute('size')!) * minScale);
+                canvas.setFontSize(Number(node.getAttribute('size')!) * minScale);
             }
 
             if (disableShadow && (name == 'fillstroke' || name == 'fill' || name == 'stroke')) {
